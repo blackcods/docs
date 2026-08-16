@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blackcods CRM — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#F8F7F2;
+  --surface:#FFFFFF;
+  --surface-alt:#F1EFE4;
+  --ink:#16171C;
+  --ink-soft:#4B4C54;
+  --muted:#8B8C94;
+  --border:#E7E3D6;
+  --gold:#F2B705;
+  --gold-deep:#B98200;
+  --gold-soft:#FCF0C8;
+  --success:#1E8E5A;
+  --success-soft:#E3F5EC;
+  --danger:#D14343;
+  --danger-soft:#FBEAEA;
+  --warning:#C67C00;
+  --warning-soft:#FBF0DA;
+  --info:#3A6EA5;
+  --info-soft:#E9F0F9;
+  --font-display:'Fraunces', serif;
+  --font-body:'Inter', sans-serif;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(20,20,15,0.04), 0 8px 24px rgba(20,20,15,0.06);
+}
+*{box-sizing:border-box;}
+html,body,#root{height:100%;margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:var(--font-body);}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;}
+a{color:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#DCD8C8;border-radius:8px;}
+
+.app-shell{display:flex;min-height:100vh;background:var(--bg);}
+.sidebar{width:236px;flex-shrink:0;background:#15151A;color:#EDEAE0;display:flex;flex-direction:column;padding:18px 12px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 20px;}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:#1a1300;font-size:16px;}
+.brand-name{font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:.2px;}
+.brand-sub{font-size:10px;color:#8f8f79;text-transform:uppercase;letter-spacing:1px;}
+.nav-group-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:#6f6f63;padding:14px 12px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13.5px;color:#c9c7ba;cursor:pointer;transition:background .12s;margin-bottom:1px;}
+.nav-item:hover{background:#212027;color:#fff;}
+.nav-item.active{background:var(--gold);color:#1a1300;font-weight:600;}
+.nav-icon{width:17px;text-align:center;font-size:14px;opacity:.9;}
+.sidebar-foot{margin-top:auto;padding:10px;border-top:1px solid #2a2a30;}
+.role-pill{font-size:10px;padding:3px 8px;border-radius:20px;background:#2a2a30;color:#d9d6c8;display:inline-block;margin-bottom:8px;}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;}
+.logout-btn{margin-top:8px;width:100%;background:none;border:1px solid #35353c;color:#c9c7ba;padding:6px;border-radius:7px;font-size:11.5px;cursor:pointer;}
+.logout-btn:hover{border-color:#54544f;color:#fff;}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;}
+.topbar h1{font-size:20px;font-weight:600;}
+.topbar-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:8px 12px;width:320px;}
+.search-box input{border:none;background:none;outline:none;font-size:13px;width:100%;color:var(--ink);}
+.content-pad{padding:24px 28px 60px;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;border:1px solid transparent;transition:opacity .12s;}
+.btn:hover{opacity:.88;}
+.btn-primary{background:var(--gold);color:#1a1300;}
+.btn-outline{background:var(--surface);border-color:var(--border);color:var(--ink);}
+.btn-ghost{background:none;color:var(--ink-soft);}
+.btn-danger{background:var(--danger-soft);color:var(--danger);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
+.stat-label{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.stat-value{font-family:var(--font-display);font-size:26px;font-weight:600;}
+.stat-delta{font-size:11.5px;margin-top:6px;font-weight:600;color:var(--muted);}
+
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+.section-title{font-size:15px;font-weight:600;margin-bottom:2px;}
+.section-sub{font-size:12px;color:var(--muted);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);}
+.panel-body{padding:16px 18px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface-alt);}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr.clickable:hover{background:var(--surface-alt);cursor:pointer;}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.b-new{background:var(--info-soft);color:var(--info);}
+.b-contacted{background:var(--gold-soft);color:var(--gold-deep);}
+.b-interested{background:#EEE7FB;color:#6B3FBF;}
+.b-demo{background:var(--warning-soft);color:var(--warning);}
+.b-proposal{background:#E6F2FB;color:#1B6FB0;}
+.b-negotiation{background:#FDEBDC;color:#B9560A;}
+.b-converted, .b-active, .b-paid, .b-resolved{background:var(--success-soft);color:var(--success);}
+.b-lost, .b-overdue, .b-unpaid, .b-open{background:var(--danger-soft);color:var(--danger);}
+.b-pending, .b-progress{background:var(--warning-soft);color:var(--warning);}
+.b-low{background:var(--surface-alt);color:var(--muted);}
+.b-medium{background:var(--gold-soft);color:var(--gold-deep);}
+.b-high{background:var(--danger-soft);color:var(--danger);}
+
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-pill{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--ink-soft);}
+.filter-pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.tag-pill{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);color:var(--ink-soft);}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.file-btn{position:relative;overflow:hidden;}
+.file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.import-summary{font-size:12px;background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+.import-summary.error{background:var(--danger-soft);color:var(--danger);border-color:var(--danger);}
+.input-sm{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--surface);outline:none;}
+.input-sm:focus{border-color:var(--gold-deep);}
+
+.board{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;overflow-x:auto;}
+.board-col{background:var(--surface-alt);border-radius:10px;padding:10px;min-width:170px;}
+.board-col-head{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;padding:0 2px;}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12.5px;box-shadow:var(--shadow);cursor:pointer;}
+.kcard-name{font-weight:600;margin-bottom:3px;}
+.kcard-meta{color:var(--muted);font-size:11px;}
+
+.overlay{position:fixed;inset:0;background:rgba(20,18,10,.4);display:flex;justify-content:flex-end;z-index:100;}
+.overlay.center{align-items:center;justify-content:center;}
+.drawer{width:460px;max-width:92vw;background:var(--surface);height:100vh;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);}
+.modal{width:560px;max-width:92vw;max-height:88vh;overflow-y:auto;background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--surface);z-index:2;}
+.drawer-body{padding:20px;}
+.close-x{cursor:pointer;color:var(--muted);font-size:18px;background:none;border:none;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.field-val{font-size:13.5px;font-weight:500;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.tab{padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--ink);border-color:var(--gold);}
+
+.timeline{border-left:2px solid var(--border);padding-left:14px;margin-left:4px;}
+.timeline-item{margin-bottom:14px;position:relative;}
+.timeline-item::before{content:'';position:absolute;left:-19px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.timeline-time{font-size:10.5px;color:var(--muted);}
+.timeline-text{font-size:13px;margin-top:2px;}
+
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-icon{font-size:30px;margin-bottom:10px;}
+.empty-title{font-weight:600;color:var(--ink-soft);margin-bottom:4px;font-size:14px;}
+
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:6px;}
+.perm-check{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;cursor:pointer;}
+.perm-check input{margin:0;}
+.perm-check.checked{background:var(--gold-soft);border-color:var(--gold);}
+
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 20%, #FCF4D8 0%, var(--bg) 55%);}
+.login-card{width:400px;background:var(--surface);border-radius:16px;box-shadow:0 30px 70px rgba(20,15,0,.12);padding:36px 32px;border:1px solid var(--border);}
+.login-logo{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:#1a1300;font-size:20px;margin-bottom:16px;}
+.role-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;background:var(--surface);margin-bottom:8px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;}
+.role-btn:hover{border-color:var(--gold-deep);background:var(--gold-soft);}
+.role-btn .rd{font-weight:400;color:var(--muted);font-size:11px;}
+
+.code-block{background:#15151A;color:#E9E6D8;border-radius:10px;padding:16px 18px;font-family:'SF Mono',Consolas,monospace;font-size:12px;overflow-x:auto;line-height:1.6;}
+.endpoint-tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px;margin-right:8px;}
+.et-post{background:#E3F5EC;color:#1E8E5A;}
+.et-get{background:#E9F0F9;color:#3A6EA5;}
+.et-put{background:#FBF0DA;color:#C67C00;}
+
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;min-width:220px;}
+
+.progress-bar{height:6px;background:var(--surface-alt);border-radius:6px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--gold);}
+
+.automation-rule{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;background:var(--surface);}
+.automation-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;flex:1;}
+.flow-node{background:var(--surface-alt);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-weight:600;}
+.flow-arrow{color:var(--muted);}
+.switch{width:36px;height:20px;border-radius:20px;background:var(--border);position:relative;cursor:pointer;flex-shrink:0;}
+.switch.on{background:var(--success);}
+.switch-dot{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s;}
+.switch.on .switch-dot{left:18px;}
+
+@media (max-width:900px){
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  .board{grid-template-columns:1fr 1fr;}
+  .search-box{width:180px;}
+  .perm-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useMemo} = React;
+
+/* =================== CONFIG (not customer data — app configuration) =================== */
+const ROLES = {
+  admin:{label:"Admin", desc:"Full access to every module"},
+  sales:{label:"Sales Executive", desc:"Leads, follow-ups, deals"},
+  support:{label:"Support Agent", desc:"Tickets & customer issues"},
+  accounts:{label:"Accounts", desc:"Invoices, payments, wallet"},
+  marketing:{label:"Marketing", desc:"Campaigns, lead sources, reports"},
+  customer:{label:"Customer Portal", desc:"Self-service login"},
+};
+
+const MODULES = [
+  {id:"dashboard", label:"Dashboard", icon:"◧"},
+  {id:"leads", label:"Leads", icon:"◎"},
+  {id:"customers", label:"Customers", icon:"▣"},
+  {id:"followups", label:"Follow-ups", icon:"⏱"},
+  {id:"deals", label:"Deals", icon:"◆"},
+  {id:"whatsapp", label:"WhatsApp", icon:"✆"},
+  {id:"campaigns", label:"Campaigns", icon:"✦"},
+  {id:"invoices", label:"Invoices", icon:"▤"},
+  {id:"payments", label:"Payments", icon:"$"},
+  {id:"support", label:"Support", icon:"◈"},
+  {id:"services", label:"Services", icon:"❖"},
+  {id:"team", label:"Team", icon:"◫"},
+  {id:"reports", label:"Reports", icon:"▦"},
+  {id:"automation", label:"Automation", icon:"⚙"},
+  {id:"apidocs", label:"API Docs", icon:"</>"},
+  {id:"settings", label:"Settings", icon:"✧"},
+];
+
+// Default module access suggested for each role — admin can tick/untick before saving a team member
+const ROLE_DEFAULT_ACCESS = {
+  admin:   MODULES.map(m=>m.id),
+  sales:   ["dashboard","leads","customers","followups","deals","whatsapp","reports"],
+  support: ["dashboard","customers","whatsapp","support"],
+  accounts:["dashboard","customers","invoices","payments","reports"],
+  marketing:["dashboard","leads","whatsapp","campaigns","services","reports"],
+};
+
+// Seed account so there's a way to log in before any team members are added.
+// In a real backend this would be created during setup, with a hashed password — this prototype stores it in memory only.
+const SEED_ADMIN = {
+  id:"EMP-ADMIN", name:"Admin", email:"admin@blackcods.com", role:"admin", dept:"Management",
+  access: MODULES.map(m=>m.id), username:"admin", password:"admin123",
+};
+function genPassword(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  let out = "";
+  for(let i=0;i<8;i++) out += chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+
+const STAGES = ["New","Contacted","Interested","Demo","Proposal","Negotiation","Converted","Lost"];
+const SOURCES = ["Google Ads","Meta Ads","Website","WhatsApp","Referral"];
+const SERVICES_LIST = [
+  {id:"S1",name:"WhatsApp Business API",price:2500,unit:"/month"},
+  {id:"S2",name:"Chatbot",price:4000,unit:"/month"},
+  {id:"S3",name:"Bulk SMS",price:0.18,unit:"/msg"},
+  {id:"S4",name:"RCS Messaging",price:0.35,unit:"/msg"},
+  {id:"S5",name:"Voice / IVR",price:3500,unit:"/month"},
+  {id:"S6",name:"Digital Marketing",price:15000,unit:"/month"},
+  {id:"S7",name:"Website Development",price:25000,unit:"one-time"},
+  {id:"S8",name:"API Integration",price:8000,unit:"one-time"},
+  {id:"S9",name:"Marketing Automation",price:6000,unit:"/month"},
+  {id:"S10",name:"CRM License",price:1999,unit:"/month"},
+];
+const WA_TEMPLATES = [
+  {name:"welcome_new_lead",body:"Hi {{name}}, thanks for your interest in Blackcods {{service}}! Our executive {{exec}} will reach out shortly.",status:"Approved"},
+  {name:"followup_reminder",body:"Hi {{name}}, just checking in regarding {{service}}. Would you like to schedule a quick call?",status:"Approved"},
+  {name:"renewal_notice",body:"Hi {{name}}, your {{plan}} plan renews on {{renewal_date}}. Reply to renew or contact your account manager.",status:"Approved"},
+  {name:"payment_reminder",body:"Hi {{name}}, invoice {{invoice_id}} of {{amount}} is due on {{due_date}}. Pay now to avoid service interruption.",status:"Approved"},
+  {name:"wallet_low_alert",body:"Hi {{name}}, your messaging wallet balance is low ({{balance}}). Recharge to avoid delivery interruption.",status:"Pending Approval"},
+];
+const AUTOMATIONS_DEFAULT = [
+  {id:1,trigger:"New Lead Created",flow:["New Lead","Auto-assign executive","WhatsApp welcome message","Follow-up reminder in 1 day"],on:true},
+  {id:2,trigger:"Proposal Sent",flow:["Proposal Sent","Wait 2 days","Auto follow-up reminder"],on:true},
+  {id:3,trigger:"Payment Due",flow:["Due date -3 days","WhatsApp payment reminder","SMS backup reminder"],on:true},
+  {id:4,trigger:"Lead Converted",flow:["Marked Converted","Create customer account","Send onboarding WhatsApp"],on:true},
+  {id:5,trigger:"Renewal Approaching",flow:["Renewal date -15 days","WhatsApp renewal notice","SMS renewal notice","Assigned exec alert"],on:true},
+  {id:6,trigger:"Wallet Balance Low",flow:["Wallet < ₹500","Alert customer","Alert admin"],on:false},
+];
+
+function badgeClass(status){
+  const map = {New:"b-new",Contacted:"b-contacted",Interested:"b-interested",Demo:"b-demo",Proposal:"b-proposal",Negotiation:"b-negotiation",Converted:"b-converted",Lost:"b-lost",
+  Active:"b-active",Paid:"b-paid",Unpaid:"b-unpaid",Overdue:"b-overdue",Pending:"b-pending","In Progress":"b-progress",Resolved:"b-resolved",Open:"b-open",Low:"b-low",Medium:"b-medium",High:"b-high"};
+  return "badge " + (map[status] || "b-new");
+}
+function inr(n){return "₹" + Number(n||0).toLocaleString("en-IN");}
+function uid(prefix){return prefix + "-" + Math.floor(1000+Math.random()*8999);}
+function today(){const d=new Date();return d.toISOString().slice(0,10);}
+
+/* ---------- Excel import / export helpers (SheetJS) ---------- */
+function exportRows(filename, rows, sheetName){
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName || "Sheet1");
+  XLSX.writeFile(wb, filename);
+}
+function downloadTemplate(filename, headers, sheetName){
+  const ws = XLSX.utils.json_to_sheet([headers.reduce((o,h)=>{o[h]="";return o;},{})]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName || "Template");
+  XLSX.writeFile(wb, filename);
+}
+// Reads the first sheet of a .xlsx/.xls/.csv file and returns an array of row objects (keyed by header row)
+function readSpreadsheetFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try{
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type:"array"});
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, {defval:""});
+        resolve(rows);
+      }catch(err){ reject(err); }
+    };
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsArrayBuffer(file);
+  });
+}
+// Case/space-insensitive lookup of a value from an imported row, trying several possible header spellings
+function pick(row, keys){
+  const map = {};
+  Object.keys(row).forEach(k=>{ map[k.toLowerCase().replace(/[\s_]+/g,"")] = row[k]; });
+  for(const k of keys){
+    const v = map[k.toLowerCase().replace(/[\s_]+/g,"")];
+    if(v!==undefined && v!=="") return v;
+  }
+  return "";
+}
+
+function ImportExportBar({onImport, onExport, onTemplate, importing, label}){
+  return (
+    <div className="toolbar-right">
+      <button className="btn btn-outline btn-sm" onClick={onTemplate}>⬇ Template</button>
+      <label className="btn btn-outline btn-sm file-btn">
+        {importing ? "Importing..." : "⬆ Import " + (label||"Excel")}
+        <input type="file" accept=".xlsx,.xls,.csv" onChange={onImport} disabled={importing}/>
+      </label>
+      <button className="btn btn-outline btn-sm" onClick={onExport}>⬇ Export</button>
+    </div>
+  );
+}
+
+/* =================== SMALL COMPONENTS =================== */
+function Badge({children}){ return <span className={badgeClass(children)}>{children}</span>; }
+function Toast({toasts}){ return <div className="toast-wrap">{toasts.map(t=> <div className="toast" key={t.id}>✆ {t.msg}</div>)}</div>; }
+function StatCard({label,value,delta}){
+  return (
+    <div className="stat-card">
+      <div className="stat-label">{label}</div>
+      <div className="stat-value">{value}</div>
+      {delta && <div className="stat-delta">{delta}</div>}
+    </div>
+  );
+}
+function Drawer({onClose,children,width}){
+  return <div className="overlay" onClick={onClose}><div className="drawer" style={width?{width}:{}} onClick={e=>e.stopPropagation()}>{children}</div></div>;
+}
+function Modal({onClose,children}){
+  return <div className="overlay center" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>{children}</div></div>;
+}
+function Empty({icon,title,sub,cta}){
+  return (
+    <div className="empty">
+      <div className="empty-icon">{icon}</div>
+      <div className="empty-title">{title}</div>
+      <div style={{fontSize:12.5,marginBottom:14}}>{sub}</div>
+      {cta}
+    </div>
+  );
+}
+function Field({label,children}){
+  return <div className="field"><label>{label}</label>{children}</div>;
+}
+
+/* =================== LOGIN =================== */
+function Login({employees, customers, onEmployeeLogin, onCustomerLogin}){
+  const [mode,setMode] = useState("employee");
+  const [username,setUsername] = useState("");
+  const [password,setPassword] = useState("");
+  const [error,setError] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    const u = username.trim().toLowerCase();
+    if(!u || !password){ setError("Enter both username and password."); return; }
+    if(mode==="employee"){
+      const emp = employees.find(x=>x.username && x.username.toLowerCase()===u && x.password===password);
+      if(emp){ setError(""); onEmployeeLogin(emp); } else setError("Incorrect username or password.");
+    } else {
+      const cust = customers.find(x=>x.username && x.username.toLowerCase()===u && x.password===password);
+      if(cust){ setError(""); onCustomerLogin(cust); } else setError("Incorrect username or password, or this customer has no portal login yet.");
+    }
+  };
+
+  return (
+    <div className="login-wrap">
+      <div className="login-card">
+        <div className="login-logo">B</div>
+        <h2 style={{fontSize:22,marginBottom:4}}>Blackcods CRM</h2>
+        <div style={{fontSize:12.5,color:"var(--muted)",marginBottom:18}}>Sign in with your username and password.</div>
+
+        <div className="tabs" style={{marginBottom:16}}>
+          <div className={"tab "+(mode==="employee"?"active":"")} onClick={()=>{setMode("employee");setError("");}}>Team Login</div>
+          <div className={"tab "+(mode==="customer"?"active":"")} onClick={()=>{setMode("customer");setError("");}}>Customer Login</div>
+        </div>
+
+        <form onSubmit={submit}>
+          <Field label="Username">
+            <input className="input-sm" style={{width:"100%"}} value={username} onChange={e=>setUsername(e.target.value)} autoFocus/>
+          </Field>
+          <Field label="Password">
+            <input type="password" className="input-sm" style={{width:"100%"}} value={password} onChange={e=>setPassword(e.target.value)}/>
+          </Field>
+          {error && <div className="import-summary error" style={{marginBottom:14}}>{error}</div>}
+          <button type="submit" className="btn btn-primary" style={{width:"100%",justifyContent:"center"}}>Log In</button>
+        </form>
+
+        {mode==="employee" && (
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:16,lineHeight:1.6}}>
+            First time here? Use the default admin login: <b>admin</b> / <b>admin123</b>.
+            Then go to Team → Add Team Member to create real logins for Sales, Support, Accounts and Marketing, each with their own section access.
+          </div>
+        )}
+        {mode==="customer" && (
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:16,lineHeight:1.6}}>
+            Customer logins are created when a team member adds/edits a customer under Customers → username & password fields.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =================== DASHBOARD =================== */
+function Dashboard({leads,customers,invoices,campaigns}){
+  const totalLeads = leads.length;
+  const newLeads = leads.filter(l=>l.stage==="New").length;
+  const converted = leads.filter(l=>l.stage==="Converted").length;
+  const pendingDeals = leads.filter(l=>["Demo","Proposal","Negotiation"].includes(l.stage)).length;
+  const revenue = invoices.reduce((s,i)=>s+Number(i.paid||0),0);
+  const followupsToday = leads.filter(l=>l.nextFollowup===today()).length;
+
+  return (
+    <div>
+      <div className="stat-grid">
+        <StatCard label="Total Leads" value={totalLeads}/>
+        <StatCard label="New Leads" value={newLeads}/>
+        <StatCard label="Follow-ups Today" value={followupsToday}/>
+        <StatCard label="Converted Customers" value={converted}/>
+        <StatCard label="Pending Deals" value={pendingDeals}/>
+        <StatCard label="Campaign Performance" value={campaigns.length ? campaigns.length+" active" : "—"}/>
+        <StatCard label="Revenue Collected" value={inr(revenue)}/>
+        <StatCard label="Renewals Due (30d)" value={customers.filter(c=>c.status==="Pending").length}/>
+      </div>
+
+      <div className="grid-2">
+        <div className="card">
+          <div className="panel-head">
+            <div><div className="section-title">Lead Sources</div><div className="section-sub">Distribution across acquisition channels</div></div>
+          </div>
+          <div className="panel-body">
+            {leads.length===0 ? <Empty icon="◎" title="No leads yet" sub="Add leads to see source distribution here."/> :
+              SOURCES.map(s=>{
+                const count = leads.filter(l=>l.source===s).length;
+                const pct = totalLeads ? Math.round(count/totalLeads*100) : 0;
+                return (
+                  <div key={s} style={{marginBottom:12}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12.5,marginBottom:4}}>
+                      <span>{s}</span><span style={{color:"var(--muted)"}}>{count} leads · {pct}%</span>
+                    </div>
+                    <div className="progress-bar"><div className="progress-fill" style={{width:pct+"%"}}></div></div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+        <div className="card">
+          <div className="panel-head"><div className="section-title">Today's Follow-ups</div></div>
+          <div className="panel-body">
+            {leads.slice(0,6).length===0 ? <Empty icon="⏱" title="Nothing scheduled" sub="Follow-ups you set on leads will appear here."/> :
+              leads.slice(0,6).map(l=>(
+                <div key={l.id} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid var(--border)",fontSize:12.5}}>
+                  <div><div style={{fontWeight:600}}>{l.name}</div><div style={{color:"var(--muted)",fontSize:11}}>{l.assigned||"Unassigned"}</div></div>
+                  <Badge>{l.stage}</Badge>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{marginTop:16}}>
+        <div className="panel-head"><div className="section-title">Pipeline Overview</div></div>
+        <div className="panel-body">
+          {leads.length===0 ? <Empty icon="◆" title="Pipeline is empty" sub="New leads will move through New → Contacted → ... → Converted / Lost."/> :
+            <div className="board" style={{gridTemplateColumns:"repeat(8,1fr)"}}>
+              {STAGES.map(st=>(
+                <div className="board-col" key={st}>
+                  <div className="board-col-head"><span>{st}</span><span>{leads.filter(l=>l.stage===st).length}</span></div>
+                  {leads.filter(l=>l.stage===st).slice(0,3).map(l=>(
+                    <div className="kcard" key={l.id}><div className="kcard-name">{l.name}</div><div className="kcard-meta">{l.serviceInterest}</div></div>
+                  ))}
+                </div>
+              ))}
+            </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== ADD LEAD MODAL =================== */
+function LeadFormModal({onClose,onSave,employees}){
+  const [f,setF] = useState({name:"",company:"",mobile:"",email:"",location:"",source:SOURCES[0],serviceInterest:SERVICES_LIST[0].name,assigned:"",nextFollowup:"",notes:""});
+  const set = (k,v)=>setF({...f,[k]:v});
+  const execs = employees.filter(e=>e.access.includes("leads"));
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>New Lead</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        <div className="field-grid">
+          <Field label="Name"><input className="input-sm" style={{width:"100%"}} value={f.name} onChange={e=>set("name",e.target.value)}/></Field>
+          <Field label="Company"><input className="input-sm" style={{width:"100%"}} value={f.company} onChange={e=>set("company",e.target.value)}/></Field>
+          <Field label="Mobile / WhatsApp"><input className="input-sm" style={{width:"100%"}} value={f.mobile} onChange={e=>set("mobile",e.target.value)}/></Field>
+          <Field label="Email"><input className="input-sm" style={{width:"100%"}} value={f.email} onChange={e=>set("email",e.target.value)}/></Field>
+          <Field label="Location"><input className="input-sm" style={{width:"100%"}} value={f.location} onChange={e=>set("location",e.target.value)}/></Field>
+          <Field label="Source">
+            <select className="input-sm" style={{width:"100%"}} value={f.source} onChange={e=>set("source",e.target.value)}>
+              {SOURCES.map(s=><option key={s}>{s}</option>)}
+            </select>
+          </Field>
+          <Field label="Service Interested">
+            <select className="input-sm" style={{width:"100%"}} value={f.serviceInterest} onChange={e=>set("serviceInterest",e.target.value)}>
+              {SERVICES_LIST.map(s=><option key={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Assigned Executive">
+            <select className="input-sm" style={{width:"100%"}} value={f.assigned} onChange={e=>set("assigned",e.target.value)}>
+              <option value="">Unassigned</option>
+              {execs.map(e=><option key={e.id}>{e.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Next Follow-up"><input type="date" className="input-sm" style={{width:"100%"}} value={f.nextFollowup} onChange={e=>set("nextFollowup",e.target.value)}/></Field>
+        </div>
+        <Field label="Notes"><textarea className="input-sm" style={{width:"100%",minHeight:60}} value={f.notes} onChange={e=>set("notes",e.target.value)}/></Field>
+        <div style={{display:"flex",gap:8,marginTop:6}}>
+          <button className="btn btn-primary" disabled={!f.name||!f.mobile} onClick={()=>onSave(f)}>Save Lead</button>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* =================== LEAD DETAIL =================== */
+function LeadDetail({lead,onClose,notify,onUpdate}){
+  const [tab,setTab] = useState("details");
+  const [note,setNote] = useState("");
+  if(!lead) return null;
+  return (
+    <Drawer onClose={onClose} width={480}>
+      <div className="drawer-head">
+        <div>
+          <div style={{fontSize:11,color:"var(--muted)"}}>{lead.id}</div>
+          <h3 style={{fontSize:18}}>{lead.name}</h3>
+          <div style={{marginTop:6}}><Badge>{lead.stage}</Badge></div>
+        </div>
+        <button className="close-x" onClick={onClose}>✕</button>
+      </div>
+      <div className="drawer-body">
+        <div className="tabs">
+          <div className={"tab "+(tab==="details"?"active":"")} onClick={()=>setTab("details")}>Details</div>
+          <div className={"tab "+(tab==="notes"?"active":"")} onClick={()=>setTab("notes")}>Notes</div>
+        </div>
+        {tab==="details" && (
+          <div>
+            <div className="field-grid">
+              <div className="field"><label>Company</label><div className="field-val">{lead.company||"—"}</div></div>
+              <div className="field"><label>Mobile / WhatsApp</label><div className="field-val">{lead.mobile}</div></div>
+              <div className="field"><label>Email</label><div className="field-val">{lead.email||"—"}</div></div>
+              <div className="field"><label>Location</label><div className="field-val">{lead.location||"—"}</div></div>
+              <div className="field"><label>Source</label><div className="field-val">{lead.source}</div></div>
+              <div className="field"><label>Service Interested</label><div className="field-val">{lead.serviceInterest}</div></div>
+              <div className="field"><label>Assigned Executive</label><div className="field-val">{lead.assigned||"Unassigned"}</div></div>
+              <div className="field"><label>Created</label><div className="field-val">{lead.created}</div></div>
+              <div className="field"><label>Next Follow-up</label><div className="field-val">{lead.nextFollowup||"—"}</div></div>
+            </div>
+            <div className="field"><label>Update Stage</label>
+              <select className="input-sm" style={{width:"100%"}} value={lead.stage} onChange={e=>{onUpdate(lead.id,{stage:e.target.value}); notify("Stage updated for "+lead.name);}}>
+                {STAGES.map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div style={{display:"flex",gap:8,marginTop:12}}>
+              <button className="btn btn-primary btn-sm" onClick={()=>notify("WhatsApp message queued to "+lead.name)}>✆ WhatsApp</button>
+              <button className="btn btn-outline btn-sm" onClick={()=>notify("SMS queued to "+lead.name)}>✉ SMS</button>
+              <button className="btn btn-outline btn-sm" onClick={()=>notify("Call logged for "+lead.name)}>☎ Log Call</button>
+            </div>
+          </div>
+        )}
+        {tab==="notes" && (
+          <div>
+            <div className="field"><div className="field-val" style={{lineHeight:1.6}}>{lead.notes || "No notes yet."}</div></div>
+            <textarea className="input-sm" style={{width:"100%",minHeight:80}} placeholder="Add a note..." value={note} onChange={e=>setNote(e.target.value)}></textarea>
+            <button className="btn btn-primary btn-sm" style={{marginTop:8}} onClick={()=>{onUpdate(lead.id,{notes:(lead.notes?lead.notes+"\n":"")+note}); setNote(""); notify("Note saved");}}>Save Note</button>
+          </div>
+        )}
+      </div>
+    </Drawer>
+  );
+}
+
+/* =================== LEADS =================== */
+const LEAD_HEADERS = ["Name","Company","Mobile","Email","Location","Source","Service Interested","Assigned Executive","Stage","Next Follow-up","Notes"];
+
+function Leads({leads,setLeads,employees,notify}){
+  const [view,setView] = useState("table");
+  const [q,setQ] = useState("");
+  const [source,setSource] = useState("All");
+  const [selected,setSelected] = useState(null);
+  const [showForm,setShowForm] = useState(false);
+  const [importing,setImporting] = useState(false);
+  const [importMsg,setImportMsg] = useState(null);
+
+  const filtered = leads.filter(l =>
+    (source==="All"||l.source===source) &&
+    (q==="" || l.name.toLowerCase().includes(q.toLowerCase()) || (l.company||"").toLowerCase().includes(q.toLowerCase()) || l.mobile.includes(q))
+  );
+
+  const addLead = (f) => {
+    const lead = {...f, id:uid("LD"), stage:"New", created:today(), lastContact:"—"};
+    setLeads([lead,...leads]);
+    setShowForm(false);
+    notify("Lead added — welcome WhatsApp queued");
+  };
+  const updateLead = (id,patch) => setLeads(leads.map(l=>l.id===id?{...l,...patch}:l));
+
+  const exportLeads = () => {
+    const rows = leads.map(l=>({
+      "Lead ID":l.id,"Name":l.name,"Company":l.company||"","Mobile":l.mobile,"Email":l.email||"",
+      "Location":l.location||"","Source":l.source,"Service Interested":l.serviceInterest,
+      "Stage":l.stage,"Assigned Executive":l.assigned||"","Created":l.created,
+      "Next Follow-up":l.nextFollowup||"","Notes":l.notes||""
+    }));
+    exportRows("leads-export.xlsx", rows, "Leads");
+    notify("Exported "+leads.length+" leads");
+  };
+
+  const importLeads = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if(!file) return;
+    setImporting(true); setImportMsg(null);
+    try{
+      const rows = await readSpreadsheetFile(file);
+      let added = 0, skipped = 0;
+      const newLeads = [];
+      rows.forEach(r=>{
+        const name = pick(r,["name","leadname","fullname"]);
+        const mobile = pick(r,["mobile","phone","whatsapp","mobilenumber"]);
+        if(!name || !mobile){ skipped++; return; }
+        const stageRaw = pick(r,["stage","status"]);
+        newLeads.push({
+          id: uid("LD"),
+          name, mobile,
+          company: pick(r,["company","companyname"]),
+          email: pick(r,["email"]),
+          location: pick(r,["location","city"]),
+          source: SOURCES.includes(pick(r,["source"])) ? pick(r,["source"]) : "Website",
+          serviceInterest: pick(r,["serviceinterested","service","serviceinterest"]) || SERVICES_LIST[0].name,
+          assigned: pick(r,["assignedexecutive","assigned","executive"]),
+          stage: STAGES.includes(stageRaw) ? stageRaw : "New",
+          created: today(),
+          lastContact: "—",
+          nextFollowup: pick(r,["nextfollowup","followupdate"]),
+          notes: pick(r,["notes","note"]),
+        });
+        added++;
+      });
+      if(newLeads.length) setLeads([...newLeads, ...leads]);
+      setImportMsg({type:added?"ok":"error", text: added ? `Imported ${added} lead${added===1?"":"s"}${skipped?`, skipped ${skipped} row(s) missing Name/Mobile`:""}.` : "No valid rows found — make sure Name and Mobile columns are filled in."});
+      if(added) notify("Imported "+added+" leads from file");
+    }catch(err){
+      setImportMsg({type:"error", text:"Could not read that file. Use .xlsx, .xls or .csv exported from Excel/Google Sheets."});
+    }
+    setImporting(false);
+  };
+
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="toolbar-left">
+          <input className="input-sm" placeholder="Search name, company, mobile..." value={q} onChange={e=>setQ(e.target.value)} style={{width:260}}/>
+          <div className="pill-row">
+            <span className={"filter-pill "+(source==="All"?"active":"")} onClick={()=>setSource("All")}>All Sources</span>
+            {SOURCES.map(s=><span key={s} className={"filter-pill "+(source===s?"active":"")} onClick={()=>setSource(s)}>{s}</span>)}
+          </div>
+        </div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <button className={"btn btn-sm "+(view==="table"?"btn-primary":"btn-outline")} onClick={()=>setView("table")}>List</button>
+          <button className={"btn btn-sm "+(view==="board"?"btn-primary":"btn-outline")} onClick={()=>setView("board")}>Pipeline</button>
+          <ImportExportBar
+            label="Leads"
+            importing={importing}
+            onImport={importLeads}
+            onExport={exportLeads}
+            onTemplate={()=>downloadTemplate("leads-template.xlsx", LEAD_HEADERS, "Leads")}
+          />
+          <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ New Lead</button>
+        </div>
+      </div>
+
+      {importMsg && <div className={"import-summary "+(importMsg.type==="error"?"error":"")}>{importMsg.text}</div>}
+
+      {leads.length===0 ? (
+        <div className="card"><Empty icon="◎" title="No leads yet" sub="Leads captured from your website, ad forms or WhatsApp will show up here — or import a batch from Excel." cta={<div style={{display:"flex",gap:8,justifyContent:"center"}}><button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Add a lead</button><label className="btn btn-outline btn-sm file-btn">⬆ Import Excel<input type="file" accept=".xlsx,.xls,.csv" onChange={importLeads}/></label></div>}/></div>
+      ) : view==="table" ? (
+        <div className="card">
+          <table>
+            <thead><tr><th>Lead</th><th>Company</th><th>Contact</th><th>Source</th><th>Service</th><th>Stage</th><th>Assigned</th><th>Next Follow-up</th></tr></thead>
+            <tbody>
+              {filtered.map(l=>(
+                <tr key={l.id} className="clickable" onClick={()=>setSelected(l)}>
+                  <td><div style={{fontWeight:600}}>{l.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>{l.id}</div></td>
+                  <td>{l.company||"—"}</td><td>{l.mobile}</td><td>{l.source}</td><td>{l.serviceInterest}</td>
+                  <td><Badge>{l.stage}</Badge></td><td>{l.assigned||"Unassigned"}</td><td>{l.nextFollowup||"—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length===0 && <div className="empty">No leads match your search.</div>}
+        </div>
+      ) : (
+        <div className="board">
+          {STAGES.map(st=>(
+            <div className="board-col" key={st}>
+              <div className="board-col-head"><span>{st}</span><span>{filtered.filter(l=>l.stage===st).length}</span></div>
+              {filtered.filter(l=>l.stage===st).map(l=>(
+                <div className="kcard" key={l.id} onClick={()=>setSelected(l)}>
+                  <div className="kcard-name">{l.name}</div><div className="kcard-meta">{l.serviceInterest}</div><div className="kcard-meta">{l.assigned||"Unassigned"}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      {selected && <LeadDetail lead={selected} onClose={()=>setSelected(null)} notify={notify} onUpdate={updateLead}/>}
+      {showForm && <LeadFormModal onClose={()=>setShowForm(false)} onSave={addLead} employees={employees}/>}
+    </div>
+  );
+}
+
+/* =================== FOLLOW-UPS =================== */
+function Followups({leads,employees,notify}){
+  const [tab,setTab] = useState("today");
+  const t = today();
+  const withFollowup = leads.filter(l=>l.nextFollowup && !["Converted","Lost"].includes(l.stage));
+  const list = tab==="today" ? withFollowup.filter(l=>l.nextFollowup===t)
+    : tab==="overdue" ? withFollowup.filter(l=>l.nextFollowup<t)
+    : withFollowup.filter(l=>l.nextFollowup>t);
+  const execs = employees.filter(e=>e.access.includes("leads"));
+  return (
+    <div>
+      <div className="pill-row" style={{marginBottom:16}}>
+        <span className={"filter-pill "+(tab==="today"?"active":"")} onClick={()=>setTab("today")}>Today</span>
+        <span className={"filter-pill "+(tab==="overdue"?"active":"")} onClick={()=>setTab("overdue")}>Overdue</span>
+        <span className={"filter-pill "+(tab==="upcoming"?"active":"")} onClick={()=>setTab("upcoming")}>Upcoming</span>
+      </div>
+      {list.length===0 ? (
+        <div className="card"><Empty icon="⏱" title="Nothing here" sub="Set a next follow-up date on a lead to see it in this list."/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Lead</th><th>Stage</th><th>Assigned To</th><th>Follow-up Date</th><th>Actions</th></tr></thead>
+            <tbody>
+              {list.map(l=>(
+                <tr key={l.id}>
+                  <td style={{fontWeight:600}}>{l.name}</td>
+                  <td><Badge>{l.stage}</Badge></td>
+                  <td>{l.assigned || "Unassigned"}</td>
+                  <td>{l.nextFollowup}</td>
+                  <td>
+                    <div style={{display:"flex",gap:6}}>
+                      <button className="btn btn-outline btn-sm" onClick={()=>notify("Call logged")}>☎</button>
+                      <button className="btn btn-outline btn-sm" onClick={()=>notify("WhatsApp reminder sent to "+l.name)}>✆</button>
+                      <button className="btn btn-outline btn-sm" onClick={()=>notify("Marked as done")}>✓</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =================== DEALS =================== */
+function Deals({leads}){
+  const deals = leads.filter(l=>["Demo","Proposal","Negotiation","Converted"].includes(l.stage));
+  if(deals.length===0) return <div className="card"><Empty icon="◆" title="No active deals" sub="Leads move here once they reach Demo, Proposal or Negotiation stage."/></div>;
+  return (
+    <div className="board" style={{gridTemplateColumns:"repeat(4,1fr)"}}>
+      {["Demo","Proposal","Negotiation","Converted"].map(st=>(
+        <div className="board-col" key={st}>
+          <div className="board-col-head"><span>{st}</span><span>{deals.filter(d=>d.stage===st).length}</span></div>
+          {deals.filter(d=>d.stage===st).map(d=>(
+            <div className="kcard" key={d.id}><div className="kcard-name">{d.name}</div><div className="kcard-meta">{d.serviceInterest}</div><div className="kcard-meta">{d.assigned||"Unassigned"}</div></div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =================== ADD CUSTOMER MODAL =================== */
+function CustomerFormModal({onClose,onSave}){
+  const [f,setF] = useState({name:"",company:"",mobile:"",email:"",plan:"Starter",services:[],startDate:today(),renewalDate:"",wallet:0,messageQuota:10000,username:"",password:""});
+  const set=(k,v)=>setF({...f,[k]:v});
+  const toggleService = (name) => set("services", f.services.includes(name) ? f.services.filter(s=>s!==name) : [...f.services,name]);
+  const suggestUsername = () => set("username", (f.email.split("@")[0] || f.mobile || f.name.toLowerCase().replace(/[^a-z0-9]/g,"")));
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>New Customer</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        <div className="field-grid">
+          <Field label="Name"><input className="input-sm" style={{width:"100%"}} value={f.name} onChange={e=>set("name",e.target.value)}/></Field>
+          <Field label="Company"><input className="input-sm" style={{width:"100%"}} value={f.company} onChange={e=>set("company",e.target.value)}/></Field>
+          <Field label="Mobile"><input className="input-sm" style={{width:"100%"}} value={f.mobile} onChange={e=>set("mobile",e.target.value)}/></Field>
+          <Field label="Email"><input className="input-sm" style={{width:"100%"}} value={f.email} onChange={e=>set("email",e.target.value)}/></Field>
+          <Field label="Plan">
+            <select className="input-sm" style={{width:"100%"}} value={f.plan} onChange={e=>set("plan",e.target.value)}>
+              {["Starter","Growth","Pro","Enterprise"].map(p=><option key={p}>{p}</option>)}
+            </select>
+          </Field>
+          <Field label="Renewal Date"><input type="date" className="input-sm" style={{width:"100%"}} value={f.renewalDate} onChange={e=>set("renewalDate",e.target.value)}/></Field>
+        </div>
+        <Field label="Services Purchased">
+          <div className="pill-row">
+            {SERVICES_LIST.map(s=>(
+              <span key={s.id} className={"filter-pill "+(f.services.includes(s.name)?"active":"")} onClick={()=>toggleService(s.name)}>{s.name}</span>
+            ))}
+          </div>
+        </Field>
+        <div className="field-grid">
+          <Field label="Portal Username (optional)">
+            <div style={{display:"flex",gap:6}}>
+              <input className="input-sm" style={{width:"100%"}} value={f.username} onChange={e=>set("username",e.target.value)}/>
+              <button type="button" className="btn btn-outline btn-sm" onClick={suggestUsername}>Suggest</button>
+            </div>
+          </Field>
+          <Field label="Portal Password">
+            <div style={{display:"flex",gap:6}}>
+              <input className="input-sm" style={{width:"100%"}} value={f.password} onChange={e=>set("password",e.target.value)}/>
+              <button type="button" className="btn btn-outline btn-sm" onClick={()=>set("password",genPassword())}>Generate</button>
+            </div>
+          </Field>
+        </div>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:-8,marginBottom:14}}>Leave blank to skip giving this customer portal access for now — you can add it later by editing the customer.</div>
+        <div style={{display:"flex",gap:8,marginTop:6}}>
+          <button className="btn btn-primary" disabled={!f.name||!f.mobile} onClick={()=>onSave(f)}>Save Customer</button>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* =================== CUSTOMER DETAIL =================== */
+function CustomerDetail({cust,onClose,notify,invoices}){
+  const [tab,setTab] = useState("overview");
+  if(!cust) return null;
+  const custInvoices = invoices.filter(i=>i.customer===cust.name);
+  return (
+    <Drawer onClose={onClose} width={500}>
+      <div className="drawer-head">
+        <div><div style={{fontSize:11,color:"var(--muted)"}}>{cust.id}</div><h3 style={{fontSize:18}}>{cust.name}</h3><div style={{fontSize:12,color:"var(--muted)"}}>{cust.company}</div></div>
+        <button className="close-x" onClick={onClose}>✕</button>
+      </div>
+      <div className="drawer-body">
+        <div className="tabs">
+          <div className={"tab "+(tab==="overview"?"active":"")} onClick={()=>setTab("overview")}>Overview</div>
+          <div className={"tab "+(tab==="payments"?"active":"")} onClick={()=>setTab("payments")}>Payments</div>
+          <div className={"tab "+(tab==="docs"?"active":"")} onClick={()=>setTab("docs")}>Documents</div>
+        </div>
+        {tab==="overview" && (
+          <div>
+            <div className="field-grid">
+              <div className="field"><label>Plan</label><div className="field-val">{cust.plan}</div></div>
+              <div className="field"><label>Status</label><Badge>{cust.status}</Badge></div>
+              <div className="field"><label>Start Date</label><div className="field-val">{cust.startDate}</div></div>
+              <div className="field"><label>Renewal Date</label><div className="field-val">{cust.renewalDate||"—"}</div></div>
+              <div className="field"><label>Mobile</label><div className="field-val">{cust.mobile}</div></div>
+              <div className="field"><label>Email</label><div className="field-val">{cust.email||"—"}</div></div>
+            </div>
+            <div className="field"><label>Services Purchased</label>
+              <div className="pill-row">{cust.services.length? cust.services.map(s=><span key={s} className="tag-pill">{s}</span>) : <span style={{color:"var(--muted)",fontSize:12}}>None yet</span>}</div>
+            </div>
+            <div className="field"><label>Portal Login</label>
+              <div className="field-val">{cust.username ? cust.username + " / " + cust.password : <span style={{color:"var(--muted)",fontWeight:400}}>No portal login set — edit customer to add one</span>}</div>
+            </div>
+            <div className="field-grid">
+              <div className="field"><label>Wallet Balance</label><div className="field-val">{inr(cust.wallet)}</div></div>
+              <div className="field"><label>Message Usage</label>
+                <div className="field-val">{cust.messageUsage||0}/{cust.messageQuota}</div>
+                <div className="progress-bar" style={{marginTop:4}}><div className="progress-fill" style={{width:((cust.messageUsage||0)/cust.messageQuota*100)+"%"}}></div></div>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8,marginTop:8}}>
+              <button className="btn btn-primary btn-sm" onClick={()=>notify("Renewal reminder sent via WhatsApp to "+cust.name)}>Send Renewal Reminder</button>
+              <button className="btn btn-outline btn-sm" onClick={()=>notify("Wallet top-up link sent")}>Top-up Wallet</button>
+            </div>
+          </div>
+        )}
+        {tab==="payments" && (custInvoices.length===0 ? <div className="empty">No invoices yet.</div> :
+          custInvoices.map(inv=>(
+            <div key={inv.id} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid var(--border)",fontSize:12.5}}>
+              <div><div style={{fontWeight:600}}>{inv.id}</div><div style={{color:"var(--muted)",fontSize:11}}>{inv.date}</div></div>
+              <div style={{textAlign:"right"}}><div>{inr(inv.total)}</div><Badge>{inv.status}</Badge></div>
+            </div>
+          )))}
+        {tab==="docs" && <div className="empty">No documents uploaded yet.</div>}
+      </div>
+    </Drawer>
+  );
+}
+
+/* =================== CUSTOMERS =================== */
+const CUSTOMER_HEADERS = ["Name","Company","Mobile","Email","Plan","Services (comma separated)","Start Date","Renewal Date","Wallet Balance","Message Quota"];
+
+function Customers({customers,setCustomers,invoices,notify}){
+  const [q,setQ] = useState("");
+  const [selected,setSelected] = useState(null);
+  const [showForm,setShowForm] = useState(false);
+  const [importing,setImporting] = useState(false);
+  const [importMsg,setImportMsg] = useState(null);
+  const filtered = customers.filter(c => q==="" || c.name.toLowerCase().includes(q.toLowerCase()) || (c.company||"").toLowerCase().includes(q.toLowerCase()));
+
+  const addCustomer = (f) => {
+    const cust = {...f, id:uid("CU"), messageUsage:0, status: f.renewalDate ? "Active" : "Active"};
+    setCustomers([cust,...customers]);
+    setShowForm(false);
+    notify("Customer added");
+  };
+
+  const exportCustomers = () => {
+    const rows = customers.map(c=>({
+      "Customer ID":c.id,"Name":c.name,"Company":c.company||"","Mobile":c.mobile,"Email":c.email||"",
+      "Plan":c.plan,"Services":c.services.join(", "),"Start Date":c.startDate,"Renewal Date":c.renewalDate||"",
+      "Wallet Balance":c.wallet,"Message Usage":c.messageUsage||0,"Message Quota":c.messageQuota,"Status":c.status
+    }));
+    exportRows("customers-export.xlsx", rows, "Customers");
+    notify("Exported "+customers.length+" customers");
+  };
+
+  const importCustomers = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if(!file) return;
+    setImporting(true); setImportMsg(null);
+    try{
+      const rows = await readSpreadsheetFile(file);
+      let added = 0, skipped = 0;
+      const newCust = [];
+      rows.forEach(r=>{
+        const name = pick(r,["name","customername"]);
+        const mobile = pick(r,["mobile","phone"]);
+        if(!name || !mobile){ skipped++; return; }
+        const servicesRaw = pick(r,["services","serviceschipsseparated","servicescommaseparated"]);
+        newCust.push({
+          id: uid("CU"),
+          name, mobile,
+          company: pick(r,["company","companyname"]),
+          email: pick(r,["email"]),
+          plan: pick(r,["plan"]) || "Starter",
+          services: servicesRaw ? String(servicesRaw).split(",").map(s=>s.trim()).filter(Boolean) : [],
+          startDate: pick(r,["startdate"]) || today(),
+          renewalDate: pick(r,["renewaldate"]),
+          wallet: Number(pick(r,["walletbalance","wallet"])) || 0,
+          messageUsage: 0,
+          messageQuota: Number(pick(r,["messagequota","quota"])) || 10000,
+          status: "Active",
+        });
+        added++;
+      });
+      if(newCust.length) setCustomers([...newCust, ...customers]);
+      setImportMsg({type:added?"ok":"error", text: added ? `Imported ${added} customer${added===1?"":"s"}${skipped?`, skipped ${skipped} row(s) missing Name/Mobile`:""}.` : "No valid rows found — make sure Name and Mobile columns are filled in."});
+      if(added) notify("Imported "+added+" customers from file");
+    }catch(err){
+      setImportMsg({type:"error", text:"Could not read that file. Use .xlsx, .xls or .csv exported from Excel/Google Sheets."});
+    }
+    setImporting(false);
+  };
+
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="search-box" style={{width:340}}>
+          <span>🔎</span>
+          <input placeholder="Search customer by name to view full details..." value={q} onChange={e=>setQ(e.target.value)}/>
+        </div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <ImportExportBar
+            label="Customers"
+            importing={importing}
+            onImport={importCustomers}
+            onExport={exportCustomers}
+            onTemplate={()=>downloadTemplate("customers-template.xlsx", CUSTOMER_HEADERS, "Customers")}
+          />
+          <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ New Customer</button>
+        </div>
+      </div>
+      {importMsg && <div className={"import-summary "+(importMsg.type==="error"?"error":"")}>{importMsg.text}</div>}
+      {customers.length===0 ? (
+        <div className="card"><Empty icon="▣" title="No customers yet" sub="Convert a lead, add one manually, or import a batch from Excel." cta={<div style={{display:"flex",gap:8,justifyContent:"center"}}><button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Add a customer</button><label className="btn btn-outline btn-sm file-btn">⬆ Import Excel<input type="file" accept=".xlsx,.xls,.csv" onChange={importCustomers}/></label></div>}/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Customer</th><th>Plan</th><th>Services</th><th>Renewal</th><th>Wallet</th><th>Status</th></tr></thead>
+            <tbody>
+              {filtered.map(c=>(
+                <tr key={c.id} className="clickable" onClick={()=>setSelected(c)}>
+                  <td><div style={{fontWeight:600}}>{c.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>{c.company}</div></td>
+                  <td>{c.plan}</td><td style={{fontSize:12}}>{c.services.join(", ")||"—"}</td>
+                  <td>{c.renewalDate||"—"}</td><td>{inr(c.wallet)}</td><td><Badge>{c.status}</Badge></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length===0 && <div className="empty">No customer found for "{q}".</div>}
+        </div>
+      )}
+      {selected && <CustomerDetail cust={selected} onClose={()=>setSelected(null)} notify={notify} invoices={invoices}/>}
+      {showForm && <CustomerFormModal onClose={()=>setShowForm(false)} onSave={addCustomer}/>}
+    </div>
+  );
+}
+
+/* =================== WHATSAPP =================== */
+function WhatsApp({notify}){
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Message Templates</div><div className="section-sub">Used by automation rules for renewals, follow-ups & payments</div></div>
+        <div className="panel-body">
+          {WA_TEMPLATES.map(t=>(
+            <div key={t.name} style={{padding:"10px 0",borderBottom:"1px solid var(--border)"}}>
+              <div style={{display:"flex",justifyContent:"space-between"}}>
+                <div style={{fontWeight:600,fontSize:13}}>{t.name}</div>
+                <Badge>{t.status==="Approved"?"Active":"Pending"}</Badge>
+              </div>
+              <div style={{fontSize:12,color:"var(--muted)",marginTop:4}}>{t.body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Sends</div></div>
+        <div className="panel-body">
+          <Empty icon="✆" title="No messages sent yet" sub="Sends triggered from Leads, Customers or Automation will be logged here."/>
+          <button className="btn btn-primary btn-sm" onClick={()=>notify("Bulk WhatsApp broadcast queued")}>Send Bulk Broadcast</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== CAMPAIGNS =================== */
+function CampaignFormModal({onClose,onSave}){
+  const [f,setF]=useState({name:"",channel:SOURCES[0],spend:0});
+  const set=(k,v)=>setF({...f,[k]:v});
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>New Campaign</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        <Field label="Campaign Name"><input className="input-sm" style={{width:"100%"}} value={f.name} onChange={e=>set("name",e.target.value)}/></Field>
+        <Field label="Channel"><select className="input-sm" style={{width:"100%"}} value={f.channel} onChange={e=>set("channel",e.target.value)}>{SOURCES.map(s=><option key={s}>{s}</option>)}</select></Field>
+        <Field label="Spend (₹)"><input type="number" className="input-sm" style={{width:"100%"}} value={f.spend} onChange={e=>set("spend",e.target.value)}/></Field>
+        <div style={{display:"flex",gap:8,marginTop:6}}>
+          <button className="btn btn-primary" disabled={!f.name} onClick={()=>onSave(f)}>Save Campaign</button>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+function Campaigns({campaigns,setCampaigns,leads,notify}){
+  const [showForm,setShowForm]=useState(false);
+  const addCampaign=(f)=>{
+    setCampaigns([{...f,id:uid("CMP"),spend:Number(f.spend)},...campaigns]);
+    setShowForm(false); notify("Campaign added");
+  };
+  return (
+    <div>
+      <div className="toolbar">
+        <div></div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline btn-sm" onClick={()=>{
+            const rows = campaigns.map(c=>{
+              const cl = leads.filter(l=>l.source===c.channel);
+              return {"Campaign":c.name,"Channel":c.channel,"Spend":c.spend,"Leads":cl.length,"Converted":cl.filter(l=>l.stage==="Converted").length};
+            });
+            exportRows("campaigns-export.xlsx", rows, "Campaigns"); notify("Exported "+campaigns.length+" campaigns");
+          }}>⬇ Export</button>
+          <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ New Campaign</button>
+        </div>
+      </div>
+      {campaigns.length===0 ? (
+        <div className="card"><Empty icon="✦" title="No campaigns yet" sub="Add a campaign to track spend, leads and ROI by channel." cta={<button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Add your first campaign</button>}/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Campaign</th><th>Channel</th><th>Spend</th><th>Leads</th><th>Converted</th></tr></thead>
+            <tbody>
+              {campaigns.map(c=>{
+                const cl = leads.filter(l=>l.source===c.channel);
+                return (
+                  <tr key={c.id}>
+                    <td style={{fontWeight:600}}>{c.name}</td><td>{c.channel}</td><td>{inr(c.spend)}</td>
+                    <td>{cl.length}</td><td>{cl.filter(l=>l.stage==="Converted").length}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {showForm && <CampaignFormModal onClose={()=>setShowForm(false)} onSave={addCampaign}/>}
+    </div>
+  );
+}
+
+/* =================== INVOICES / PAYMENTS =================== */
+function InvoiceFormModal({onClose,onSave,customers}){
+  const [f,setF]=useState({customer:customers[0]?.name||"",amount:0,due:""});
+  const set=(k,v)=>setF({...f,[k]:v});
+  const gst = Math.round(Number(f.amount||0)*0.18);
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>New Invoice</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        {customers.length===0 ? <div className="empty">Add a customer first before creating an invoice.</div> : (
+          <div>
+            <Field label="Customer"><select className="input-sm" style={{width:"100%"}} value={f.customer} onChange={e=>set("customer",e.target.value)}>{customers.map(c=><option key={c.id}>{c.name}</option>)}</select></Field>
+            <Field label="Amount (₹, before GST)"><input type="number" className="input-sm" style={{width:"100%"}} value={f.amount} onChange={e=>set("amount",e.target.value)}/></Field>
+            <div style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>GST (18%): {inr(gst)} · Total: {inr(Number(f.amount||0)+gst)}</div>
+            <Field label="Due Date"><input type="date" className="input-sm" style={{width:"100%"}} value={f.due} onChange={e=>set("due",e.target.value)}/></Field>
+            <div style={{display:"flex",gap:8,marginTop:6}}>
+              <button className="btn btn-primary" disabled={!f.amount} onClick={()=>onSave({...f,gst})}>Save Invoice</button>
+              <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+function Invoices({invoices,setInvoices,customers,notify}){
+  const [status,setStatus] = useState("All");
+  const [showForm,setShowForm] = useState(false);
+  const filtered = invoices.filter(i=>status==="All"||i.status===status);
+  const addInvoice = (f) => {
+    const amount = Number(f.amount);
+    const inv = {id:uid("INV"),customer:f.customer,date:today(),due:f.due||today(),amount,gst:f.gst,total:amount+f.gst,paid:0,balance:amount+f.gst,status:"Pending"};
+    setInvoices([inv,...invoices]); setShowForm(false); notify("Invoice created");
+  };
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="pill-row">{["All","Paid","Pending","Overdue"].map(s=><span key={s} className={"filter-pill "+(status===s?"active":"")} onClick={()=>setStatus(s)}>{s}</span>)}</div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline btn-sm" onClick={()=>{
+            const rows = invoices.map(i=>({"Invoice":i.id,"Customer":i.customer,"Date":i.date,"Due":i.due,"Amount":i.amount,"GST":i.gst,"Total":i.total,"Paid":i.paid,"Balance":i.balance,"Status":i.status}));
+            exportRows("invoices-export.xlsx", rows, "Invoices"); notify("Exported "+invoices.length+" invoices");
+          }}>⬇ Export</button>
+          <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ New Invoice</button>
+        </div>
+      </div>
+      {invoices.length===0 ? (
+        <div className="card"><Empty icon="▤" title="No invoices yet" sub="Create an invoice for a customer to start billing." cta={<button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Create your first invoice</button>}/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Due</th><th>Amount</th><th>GST</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {filtered.map(inv=>(
+                <tr key={inv.id}>
+                  <td style={{fontWeight:600}}>{inv.id}</td><td>{inv.customer}</td><td>{inv.date}</td><td>{inv.due}</td>
+                  <td>{inr(inv.amount)}</td><td>{inr(inv.gst)}</td><td>{inr(inv.paid)}</td><td>{inr(inv.balance)}</td><td><Badge>{inv.status}</Badge></td>
+                  <td><div style={{display:"flex",gap:6}}>
+                    <button className="btn btn-outline btn-sm" onClick={()=>notify("Invoice PDF generated for "+inv.id)}>PDF</button>
+                    <button className="btn btn-outline btn-sm" onClick={()=>notify("Invoice sent via WhatsApp to "+inv.customer)}>✆</button>
+                  </div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {showForm && <InvoiceFormModal onClose={()=>setShowForm(false)} onSave={addInvoice} customers={customers}/>}
+    </div>
+  );
+}
+function Payments({invoices,notify}){
+  const totalCollected = invoices.reduce((s,i)=>s+i.paid,0);
+  const totalPending = invoices.reduce((s,i)=>s+i.balance,0);
+  const withBalance = invoices.filter(i=>i.balance>0);
+  return (
+    <div>
+      <div className="stat-grid" style={{gridTemplateColumns:"repeat(3,1fr)"}}>
+        <StatCard label="Total Collected" value={inr(totalCollected)}/>
+        <StatCard label="Pending Balance" value={inr(totalPending)}/>
+        <StatCard label="Overdue Invoices" value={invoices.filter(i=>i.status==="Overdue").length}/>
+      </div>
+      {withBalance.length===0 ? (
+        <div className="card"><Empty icon="$" title="No pending payments" sub="Outstanding invoice balances will show up here."/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Invoice</th><th>Customer</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {withBalance.map(inv=>(
+                <tr key={inv.id}>
+                  <td>{inv.id}</td><td>{inv.customer}</td><td>{inr(inv.paid)}</td><td>{inr(inv.balance)}</td><td><Badge>{inv.status}</Badge></td>
+                  <td><button className="btn btn-outline btn-sm" onClick={()=>notify("Payment reminder sent for "+inv.id)}>Remind</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =================== SUPPORT =================== */
+function TicketFormModal({onClose,onSave,customers}){
+  const [f,setF]=useState({customer:customers[0]?.name||"",issue:"",priority:"Medium"});
+  const set=(k,v)=>setF({...f,[k]:v});
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>New Ticket</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        <Field label="Customer">
+          {customers.length? <select className="input-sm" style={{width:"100%"}} value={f.customer} onChange={e=>set("customer",e.target.value)}>{customers.map(c=><option key={c.id}>{c.name}</option>)}</select>
+          : <input className="input-sm" style={{width:"100%"}} placeholder="Customer name" value={f.customer} onChange={e=>set("customer",e.target.value)}/>}
+        </Field>
+        <Field label="Issue"><textarea className="input-sm" style={{width:"100%",minHeight:60}} value={f.issue} onChange={e=>set("issue",e.target.value)}/></Field>
+        <Field label="Priority"><select className="input-sm" style={{width:"100%"}} value={f.priority} onChange={e=>set("priority",e.target.value)}>{["Low","Medium","High"].map(p=><option key={p}>{p}</option>)}</select></Field>
+        <div style={{display:"flex",gap:8,marginTop:6}}>
+          <button className="btn btn-primary" disabled={!f.issue} onClick={()=>onSave(f)}>Save Ticket</button>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+function Support({tickets,setTickets,customers,notify}){
+  const [status,setStatus] = useState("All");
+  const [showForm,setShowForm] = useState(false);
+  const filtered = tickets.filter(t=>status==="All"||t.status===status);
+  const addTicket = (f) => {
+    setTickets([{...f,id:uid("TK"),status:"Open",assigned:"Unassigned",created:today()},...tickets]);
+    setShowForm(false); notify("Ticket created");
+  };
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="pill-row">{["All","Open","In Progress","Resolved"].map(s=><span key={s} className={"filter-pill "+(status===s?"active":"")} onClick={()=>setStatus(s)}>{s}</span>)}</div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline btn-sm" onClick={()=>{
+            const rows = tickets.map(t=>({"Ticket":t.id,"Customer":t.customer,"Issue":t.issue,"Priority":t.priority,"Assigned":t.assigned,"Status":t.status,"Created":t.created}));
+            exportRows("support-tickets-export.xlsx", rows, "Tickets"); notify("Exported "+tickets.length+" tickets");
+          }}>⬇ Export</button>
+          <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ New Ticket</button>
+        </div>
+      </div>
+      {tickets.length===0 ? (
+        <div className="card"><Empty icon="◈" title="No tickets yet" sub="Customer issues raised here or from the customer portal will appear." cta={<button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Log a ticket</button>}/></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead><tr><th>Ticket</th><th>Customer</th><th>Issue</th><th>Priority</th><th>Assigned</th><th>Status</th><th>Created</th></tr></thead>
+            <tbody>
+              {filtered.map(t=>(
+                <tr key={t.id}>
+                  <td style={{fontWeight:600}}>{t.id}</td><td>{t.customer}</td><td style={{maxWidth:220}}>{t.issue}</td>
+                  <td><Badge>{t.priority}</Badge></td><td>{t.assigned}</td><td><Badge>{t.status}</Badge></td><td>{t.created}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {showForm && <TicketFormModal onClose={()=>setShowForm(false)} onSave={addTicket} customers={customers}/>}
+    </div>
+  );
+}
+
+/* =================== SERVICES =================== */
+function Services({customers,notify}){
+  return (
+    <div className="card">
+      <table>
+        <thead><tr><th>Service</th><th>Price</th><th>Active Customers</th><th></th></tr></thead>
+        <tbody>
+          {SERVICES_LIST.map(s=>(
+            <tr key={s.id}>
+              <td style={{fontWeight:600}}>{s.name}</td><td>{inr(s.price)}{s.unit}</td>
+              <td>{customers.filter(c=>c.services.includes(s.name)).length}</td>
+              <td><button className="btn btn-outline btn-sm" onClick={()=>notify("Editing "+s.name)}>Edit</button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* =================== TEAM MEMBER FORM (role + fine-grained access) =================== */
+function TeamMemberModal({onClose,onSave,editing}){
+  const [f,setF] = useState(editing || {name:"",email:"",role:"sales",dept:"Sales",access:[...ROLE_DEFAULT_ACCESS.sales],username:"",password:genPassword()});
+  const set = (k,v) => setF({...f,[k]:v});
+  const applyRoleDefaults = (role) => setF({...f,role,access:[...ROLE_DEFAULT_ACCESS[role]]});
+  const toggleModule = (id) => {
+    if(id==="dashboard") return; // dashboard always included
+    set("access", f.access.includes(id) ? f.access.filter(a=>a!==id) : [...f.access,id]);
+  };
+  const suggestUsername = () => {
+    const base = (f.email.split("@")[0] || f.name.toLowerCase().replace(/[^a-z0-9]/g,"")) || "user";
+    set("username", base);
+  };
+  return (
+    <Modal onClose={onClose}>
+      <div className="drawer-head"><h3 style={{fontSize:17}}>{editing?"Edit Team Member":"Add Team Member"}</h3><button className="close-x" onClick={onClose}>✕</button></div>
+      <div className="drawer-body">
+        <div className="field-grid">
+          <Field label="Full Name"><input className="input-sm" style={{width:"100%"}} value={f.name} onChange={e=>set("name",e.target.value)}/></Field>
+          <Field label="Email"><input className="input-sm" style={{width:"100%"}} value={f.email} onChange={e=>set("email",e.target.value)}/></Field>
+          <Field label="Department"><input className="input-sm" style={{width:"100%"}} value={f.dept} onChange={e=>set("dept",e.target.value)}/></Field>
+          <Field label="Role (sets default access)">
+            <select className="input-sm" style={{width:"100%"}} value={f.role} onChange={e=>applyRoleDefaults(e.target.value)}>
+              {Object.entries(ROLES).filter(([k])=>k!=="customer").map(([k,r])=><option key={k} value={k}>{r.label}</option>)}
+            </select>
+          </Field>
+        </div>
+
+        <div className="field-grid">
+          <Field label="Username (for login)">
+            <div style={{display:"flex",gap:6}}>
+              <input className="input-sm" style={{width:"100%"}} value={f.username} onChange={e=>set("username",e.target.value)} placeholder="e.g. anjali.menon"/>
+              <button type="button" className="btn btn-outline btn-sm" onClick={suggestUsername}>Suggest</button>
+            </div>
+          </Field>
+          <Field label="Password">
+            <div style={{display:"flex",gap:6}}>
+              <input className="input-sm" style={{width:"100%"}} value={f.password} onChange={e=>set("password",e.target.value)}/>
+              <button type="button" className="btn btn-outline btn-sm" onClick={()=>set("password",genPassword())}>Generate</button>
+            </div>
+          </Field>
+        </div>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:-8,marginBottom:14}}>Share this username/password with them directly — they'll log in from the "Team Login" tab. In production this would be sent by email/SMS with a forced reset on first login, and the password would be hashed, not stored in plain text as this in-browser demo does.</div>
+
+        <Field label="Section Access — tick what this person can open">
+          <div className="perm-grid">
+            {MODULES.filter(m=>m.id!=="dashboard").map(m=>{
+              const checked = f.access.includes(m.id);
+              return (
+                <label key={m.id} className={"perm-check "+(checked?"checked":"")}>
+                  <input type="checkbox" checked={checked} onChange={()=>toggleModule(m.id)}/>
+                  {m.icon} {m.label}
+                </label>
+              );
+            })}
+          </div>
+        </Field>
+        <div style={{display:"flex",gap:8,marginTop:6}}>
+          <button className="btn btn-primary" disabled={!f.name||!f.email} onClick={()=>onSave(f)}>{editing?"Save Changes":"Add Team Member"}</button>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* =================== TEAM =================== */
+function Team({employees,setEmployees,notify}){
+  const [showForm,setShowForm] = useState(false);
+  const [editing,setEditing] = useState(null);
+  const [showPw,setShowPw] = useState({});
+
+  const addOrUpdate = (f) => {
+    if(!f.username || !f.password){ notify("Username and password are required"); return; }
+    const dupe = employees.find(e=>e.username && e.username.toLowerCase()===f.username.toLowerCase() && e.id!==f.id);
+    if(dupe){ notify("Username \""+f.username+"\" is already taken by "+dupe.name); return; }
+    if(f.id){
+      setEmployees(employees.map(e=>e.id===f.id?f:e));
+      notify("Access updated for "+f.name);
+    } else {
+      setEmployees([{...f,id:uid("EMP")},...employees]);
+      notify(f.name+" added — username \""+f.username+"\" with "+f.access.length+" sections enabled");
+    }
+    setShowForm(false); setEditing(null);
+  };
+  const remove = (id) => {
+    if(id==="EMP-ADMIN"){ notify("The default admin account can't be removed"); return; }
+    setEmployees(employees.filter(e=>e.id!==id)); notify("Team member removed");
+  };
+
+  return (
+    <div>
+      <div className="card">
+        <div className="panel-head">
+          <div>
+            <div className="section-title">Team Members</div>
+            <div className="section-sub">Admin allocates exactly which sections each department (Accounts, Marketing, Sales, Support) can access</div>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button className="btn btn-outline btn-sm" onClick={()=>{
+              const rows = employees.map(e=>({"Name":e.name,"Email":e.email,"Username":e.username,"Role":ROLES[e.role]?.label||e.role,"Department":e.dept,"Access":e.access.filter(a=>a!=="dashboard").map(a=>MODULES.find(m=>m.id===a)?.label).join(", ")}));
+              exportRows("team-access-export.xlsx", rows, "Team"); notify("Exported "+employees.length+" team members");
+            }}>⬇ Export</button>
+            <button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Add Team Member</button>
+          </div>
+        </div>
+        {employees.length===0 ? (
+          <Empty icon="◫" title="No team members yet" sub="Add employees and choose exactly which CRM sections they can open — e.g. give Accounts only Invoices & Payments, Marketing only Leads & Campaigns." cta={<button className="btn btn-primary btn-sm" onClick={()=>setShowForm(true)}>+ Add your first team member</button>}/>
+        ) : (
+          <table>
+            <thead><tr><th>Name</th><th>Login</th><th>Role</th><th>Department</th><th>Access</th><th></th></tr></thead>
+            <tbody>
+              {employees.map(e=>(
+                <tr key={e.id}>
+                  <td><div style={{fontWeight:600}}>{e.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>{e.email}</div></td>
+                  <td>
+                    <div style={{fontSize:12}}>{e.username}</div>
+                    <div style={{fontSize:11,color:"var(--muted)",display:"flex",alignItems:"center",gap:4}}>
+                      {showPw[e.id] ? e.password : "••••••••"}
+                      <span style={{cursor:"pointer",color:"var(--gold-deep)"}} onClick={()=>setShowPw({...showPw,[e.id]:!showPw[e.id]})}>{showPw[e.id]?"hide":"show"}</span>
+                    </div>
+                  </td>
+                  <td><span className="tag-pill">{ROLES[e.role]?.label||e.role}</span></td>
+                  <td>{e.dept}</td>
+                  <td style={{maxWidth:260}}>
+                    <div className="pill-row">
+                      {e.access.filter(a=>a!=="dashboard").map(a=><span key={a} className="tag-pill">{MODULES.find(m=>m.id===a)?.label}</span>)}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{display:"flex",gap:6}}>
+                      <button className="btn btn-outline btn-sm" onClick={()=>{setEditing(e); setShowForm(true);}}>Edit Access</button>
+                      <button className="btn btn-danger btn-sm" onClick={()=>remove(e.id)}>Remove</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showForm && <TeamMemberModal onClose={()=>{setShowForm(false); setEditing(null);}} onSave={addOrUpdate} editing={editing}/>}
+    </div>
+  );
+}
+
+/* =================== REPORTS =================== */
+function Reports({leads,invoices,customers,employees}){
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Lead Source Report</div></div>
+        <div className="panel-body">
+          {leads.length===0 ? <Empty icon="▦" title="No data yet" sub="Add leads to populate this report."/> : (
+            <table>
+              <thead><tr><th>Source</th><th>Leads</th><th>Converted</th><th>Conv. Rate</th></tr></thead>
+              <tbody>
+                {SOURCES.map(s=>{
+                  const sl = leads.filter(l=>l.source===s);
+                  const conv = sl.filter(l=>l.stage==="Converted").length;
+                  return <tr key={s}><td>{s}</td><td>{sl.length}</td><td>{conv}</td><td>{sl.length?Math.round(conv/sl.length*100):0}%</td></tr>;
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Employee Performance</div></div>
+        <div className="panel-body">
+          {employees.length===0 ? <Empty icon="▦" title="No team members yet" sub="Add team members to see performance by executive."/> : (
+            <table>
+              <thead><tr><th>Executive</th><th>Leads</th><th>Converted</th></tr></thead>
+              <tbody>
+                {employees.map(e=>{
+                  const el = leads.filter(l=>l.assigned===e.name);
+                  return <tr key={e.id}><td>{e.name}</td><td>{el.length}</td><td>{el.filter(l=>l.stage==="Converted").length}</td></tr>;
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Revenue & Pending Payments</div></div>
+        <div className="panel-body">
+          <StatCard label="Total Revenue Collected" value={inr(invoices.reduce((s,i)=>s+i.paid,0))}/>
+          <div style={{height:10}}></div>
+          <StatCard label="Total Pending" value={inr(invoices.reduce((s,i)=>s+i.balance,0))}/>
+        </div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Customer Renewal Report</div></div>
+        <div className="panel-body">
+          {customers.filter(c=>c.status==="Pending").length===0 ? <Empty icon="▦" title="No renewals due" sub="Customers nearing renewal will be listed here."/> : (
+            <table>
+              <thead><tr><th>Customer</th><th>Renewal Date</th><th>Status</th></tr></thead>
+              <tbody>{customers.filter(c=>c.status==="Pending").map(c=><tr key={c.id}><td>{c.name}</td><td>{c.renewalDate}</td><td><Badge>{c.status}</Badge></td></tr>)}</tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== AUTOMATION =================== */
+function Automation({notify}){
+  const [rules,setRules] = useState(AUTOMATIONS_DEFAULT);
+  const toggle = id => setRules(rules.map(r=>r.id===id?{...r,on:!r.on}:r));
+  return (
+    <div>
+      <div className="section-sub" style={{marginBottom:14}}>These rules connect the WhatsApp/SMS API — see API Docs for the underlying webhook & endpoint calls.</div>
+      {rules.map(r=>(
+        <div className="automation-rule" key={r.id}>
+          <div className="automation-flow">
+            {r.flow.map((f,i)=>(
+              <React.Fragment key={i}>
+                <span className="flow-node">{f}</span>
+                {i<r.flow.length-1 && <span className="flow-arrow">→</span>}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className={"switch "+(r.on?"on":"")} onClick={()=>{toggle(r.id); notify((r.on?"Disabled: ":"Enabled: ")+r.trigger);}}><div className="switch-dot"></div></div>
+        </div>
+      ))}
+      <button className="btn btn-outline btn-sm" onClick={()=>notify("New automation rule builder would open here")}>+ New Automation Rule</button>
+    </div>
+  );
+}
+
+/* =================== API DOCS =================== */
+function ApiDocs(){
+  return (
+    <div>
+      <div className="card" style={{marginBottom:16}}>
+        <div className="panel-body">
+          <h3 style={{fontSize:16,marginBottom:6}}>Blackcods CRM API</h3>
+          <div style={{fontSize:13,color:"var(--ink-soft)",lineHeight:1.6}}>
+            Base URL: <code>https://api.blackcods.com/v1</code> · Auth: <code>Authorization: Bearer &lt;API_KEY&gt;</code> generated under Settings → API Keys.
+            All webhooks are signed with an <code>X-Blackcods-Signature</code> HMAC header. See the full reference document for every endpoint (leads, customers, invoices, tickets, webhooks).
+          </div>
+        </div>
+      </div>
+      <div className="card" style={{marginBottom:16}}>
+        <div className="panel-head"><span className="endpoint-tag et-post">POST</span><b>/leads</b></div>
+        <div className="panel-body"><div style={{fontSize:13,marginBottom:10,color:"var(--ink-soft)"}}>Create a lead. Triggers the "New Lead" automation: auto-assign → WhatsApp welcome → follow-up reminder.</div>
+        <div className="code-block">{`{
+  "name": "Rohit Varma",
+  "mobile": "9847012345",
+  "source": "Meta Ads",
+  "service_interested": "WhatsApp Business API"
+}`}</div></div>
+      </div>
+      <div className="card" style={{marginBottom:16}}>
+        <div className="panel-head"><span className="endpoint-tag et-post">POST</span><b>/notifications/whatsapp</b></div>
+        <div className="panel-body"><div style={{fontSize:13,marginBottom:10,color:"var(--ink-soft)"}}>Send a templated WhatsApp message — used for renewal reminders, payment dues, and follow-ups.</div>
+        <div className="code-block">{`{
+  "to": "9847012345",
+  "template": "renewal_notice",
+  "variables": { "name": "Rohit Varma", "plan": "Growth", "renewal_date": "28-Aug-2026" }
+}`}</div></div>
+      </div>
+      <div className="card" style={{marginBottom:16}}>
+        <div className="panel-head"><span className="endpoint-tag et-post">POST</span><b>/notifications/sms</b></div>
+        <div className="panel-body"><div style={{fontSize:13,color:"var(--ink-soft)"}}>Fallback SMS channel, used automatically if a WhatsApp message isn't delivered within 5 minutes.</div></div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Webhook Events</div></div>
+        <div className="panel-body">
+          <table>
+            <thead><tr><th>Event</th><th>Fires when</th><th>Typical automation</th></tr></thead>
+            <tbody>
+              <tr><td>lead.created</td><td>New lead added</td><td>Assign executive + WhatsApp welcome</td></tr>
+              <tr><td>lead.stage_changed</td><td>Pipeline stage updated</td><td>Follow-up scheduling</td></tr>
+              <tr><td>invoice.due_soon</td><td>3 days before due date</td><td>Payment reminder WhatsApp/SMS</td></tr>
+              <tr><td>customer.renewal_upcoming</td><td>15 days before renewal</td><td>Renewal reminder WhatsApp/SMS</td></tr>
+              <tr><td>wallet.low_balance</td><td>Wallet balance below threshold</td><td>Customer + admin alert</td></tr>
+            </tbody>
+          </table>
+          <div style={{fontSize:12,color:"var(--muted)",marginTop:10}}>Full reference: see blackcods-crm-api-documentation.md</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== SETTINGS =================== */
+function Settings(){
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="panel-head"><div className="section-title">Company Profile</div></div>
+        <div className="panel-body">
+          <Field label="Company Name"><input className="input-sm" style={{width:"100%"}} placeholder="Blackcods Digital Pvt Ltd"/></Field>
+          <Field label="GST Number"><input className="input-sm" style={{width:"100%"}} placeholder="32ABCDE1234F1Z5"/></Field>
+          <Field label="Support Email"><input className="input-sm" style={{width:"100%"}} placeholder="support@blackcods.com"/></Field>
+        </div>
+      </div>
+      <div className="card">
+        <div className="panel-head"><div className="section-title">API Keys</div></div>
+        <div className="panel-body">
+          <Field label="Live API Key"><input className="input-sm" style={{width:"100%"}} placeholder="Click Generate to create a key" readOnly/></Field>
+          <Field label="WhatsApp Business Number"><input className="input-sm" style={{width:"100%"}} placeholder="+91 90000 12345"/></Field>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== CUSTOMER PORTAL =================== */
+function CustomerPortal({customer,invoices,tickets,setTickets,onLogout,notify}){
+  const custInvoices = invoices.filter(i=>i.customer===customer.name);
+  const [ticketText,setTicketText] = useState("");
+  const submitTicket = () => {
+    if(!ticketText.trim()) return;
+    setTickets([{id:uid("TK"),customer:customer.name,issue:ticketText,priority:"Medium",status:"Open",assigned:"Unassigned",created:today()},...tickets]);
+    setTicketText("");
+    notify("Ticket submitted — support will get back to you");
+  };
+  return (
+    <div style={{minHeight:"100vh",background:"var(--bg)"}}>
+      <div className="topbar">
+        <div><h1>Welcome, {customer.name}</h1><div className="topbar-sub">{customer.company||"Customer Portal"}</div></div>
+        <button className="logout-btn" style={{color:"var(--ink)",borderColor:"var(--border)",width:"auto",padding:"8px 14px"}} onClick={onLogout}>Log out</button>
+      </div>
+      <div className="content-pad">
+        <div className="stat-grid" style={{gridTemplateColumns:"repeat(4,1fr)"}}>
+          <StatCard label="Plan" value={customer.plan}/>
+          <StatCard label="Renewal Date" value={customer.renewalDate||"—"}/>
+          <StatCard label="Wallet Balance" value={inr(customer.wallet)}/>
+          <StatCard label="Message Usage" value={(customer.messageUsage||0)+"/"+customer.messageQuota}/>
+        </div>
+        <div className="grid-2">
+          <div className="card">
+            <div className="panel-head"><div className="section-title">My Services</div></div>
+            <div className="panel-body">
+              {customer.services.length ? customer.services.map(s=><div key={s} className="filter-pill" style={{display:"inline-block",marginRight:8,marginBottom:8,cursor:"default"}}>{s}</div>) : <Empty icon="❖" title="No services yet" sub="Your active services will show up here."/>}
+            </div>
+          </div>
+          <div className="card">
+            <div className="panel-head"><div className="section-title">Invoices</div></div>
+            {custInvoices.length===0 ? <div className="panel-body"><Empty icon="▤" title="No invoices yet" sub=""/></div> : (
+              <table><tbody>
+                {custInvoices.map(i=>(
+                  <tr key={i.id}><td>{i.id}</td><td>{i.date}</td><td>{inr(i.total)}</td><td><Badge>{i.status}</Badge></td></tr>
+                ))}
+              </tbody></table>
+            )}
+          </div>
+        </div>
+        <div className="card" style={{marginTop:16}}>
+          <div className="panel-head"><div className="section-title">Raise a Support Ticket</div></div>
+          <div className="panel-body">
+            <textarea className="input-sm" style={{width:"100%",minHeight:70}} placeholder="Describe your issue..." value={ticketText} onChange={e=>setTicketText(e.target.value)}></textarea>
+            <button className="btn btn-primary btn-sm" style={{marginTop:8}} onClick={submitTicket}>Submit Ticket</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== APP SHELL =================== */
+const TITLES = {
+  dashboard:["Dashboard","Overview of leads, deals and revenue"],
+  leads:["Leads","Manage and track every lead through the pipeline"],
+  customers:["Customers","Search a customer to view full details"],
+  followups:["Follow-ups","Today's, upcoming and overdue follow-ups"],
+  deals:["Deals","Active deals in Demo, Proposal and Negotiation"],
+  whatsapp:["WhatsApp","Templates and automated messaging"],
+  campaigns:["Campaign Performance","Track spend, leads and ROI by channel"],
+  invoices:["Invoices","Billing and GST invoices"],
+  payments:["Payments","Collections and outstanding balances"],
+  support:["Customer Support","Tickets and issue resolution"],
+  services:["Services / Products","Manage your service catalogue"],
+  team:["Team","Employees and role-based access"],
+  reports:["Reports","Business performance across the CRM"],
+  automation:["Automation","Rules that connect leads, WhatsApp/SMS and renewals"],
+  apidocs:["API Documentation","Endpoints for leads, notifications and automation"],
+  settings:["Settings","Company profile and API configuration"],
+};
+
+function App(){
+  const [session,setSession] = useState(null); // {type:"employee", id} | {type:"customer", id}
+  const [page,setPage] = useState("dashboard");
+  const [toasts,setToasts] = useState([]);
+
+  const [leads,setLeads] = useState([]);
+  const [customers,setCustomers] = useState([]);
+  const [invoices,setInvoices] = useState([]);
+  const [tickets,setTickets] = useState([]);
+  const [campaigns,setCampaigns] = useState([]);
+  const [employees,setEmployees] = useState([SEED_ADMIN]);
+
+  const notify = (msg) => {
+    const id = Date.now()+Math.random();
+    setToasts(t=>[...t,{id,msg}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),2800);
+  };
+
+  const currentEmployee = useMemo(()=>{
+    if(!session || session.type!=="employee") return null;
+    return employees.find(e=>e.id===session.id) || null;
+  },[session,employees]);
+
+  const currentCustomer = useMemo(()=>{
+    if(!session || session.type!=="customer") return null;
+    return customers.find(c=>c.id===session.id) || null;
+  },[session,customers]);
+
+  const sessionAccess = currentEmployee ? currentEmployee.access : [];
+
+  const loginEmployee = (emp) => {
+    setSession({type:"employee", id:emp.id});
+    setPage(emp.access.includes("dashboard") ? "dashboard" : (emp.access[0]||"dashboard"));
+  };
+  const loginCustomer = (cust) => setSession({type:"customer", id:cust.id});
+  const logout = () => setSession(null);
+
+  if(!session) return <Login employees={employees} customers={customers} onEmployeeLogin={loginEmployee} onCustomerLogin={loginCustomer}/>;
+
+  if(session.type==="customer"){
+    if(!currentCustomer) return <Login employees={employees} customers={customers} onEmployeeLogin={loginEmployee} onCustomerLogin={loginCustomer}/>;
+    return <CustomerPortal customer={currentCustomer} invoices={invoices} tickets={tickets} setTickets={setTickets} onLogout={logout} notify={notify}/>;
+  }
+
+  if(!currentEmployee) return <Login employees={employees} customers={customers} onEmployeeLogin={loginEmployee} onCustomerLogin={loginCustomer}/>;
+
+  const visibleMenu = MODULES.filter(m=>sessionAccess.includes(m.id));
+  const [title,sub] = TITLES[page] || ["",""];
+
+  const renderPage = () => {
+    switch(page){
+      case "dashboard": return <Dashboard leads={leads} customers={customers} invoices={invoices} campaigns={campaigns}/>;
+      case "leads": return <Leads leads={leads} setLeads={setLeads} employees={employees} notify={notify}/>;
+      case "customers": return <Customers customers={customers} setCustomers={setCustomers} invoices={invoices} notify={notify}/>;
+      case "followups": return <Followups leads={leads} employees={employees} notify={notify}/>;
+      case "deals": return <Deals leads={leads}/>;
+      case "whatsapp": return <WhatsApp notify={notify}/>;
+      case "campaigns": return <Campaigns campaigns={campaigns} setCampaigns={setCampaigns} leads={leads} notify={notify}/>;
+      case "invoices": return <Invoices invoices={invoices} setInvoices={setInvoices} customers={customers} notify={notify}/>;
+      case "payments": return <Payments invoices={invoices} notify={notify}/>;
+      case "support": return <Support tickets={tickets} setTickets={setTickets} customers={customers} notify={notify}/>;
+      case "services": return <Services customers={customers} notify={notify}/>;
+      case "team": return <Team employees={employees} setEmployees={setEmployees} notify={notify}/>;
+      case "reports": return <Reports leads={leads} invoices={invoices} customers={customers} employees={employees}/>;
+      case "automation": return <Automation notify={notify}/>;
+      case "apidocs": return <ApiDocs/>;
+      case "settings": return <Settings/>;
+      default: return null;
+    }
+  };
+
+  if(visibleMenu.length===0){
+    return (
+      <div className="app-shell">
+        <div className="main">
+          <div className="content-pad">
+            <div className="card"><Empty icon="⚠" title="No access assigned" sub="Your account has no sections enabled. Ask an Admin to grant access under Team → Edit Access." cta={<button className="btn btn-outline btn-sm" onClick={logout}>Back to login</button>}/></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-shell">
+      <div className="sidebar">
+        <div className="brand">
+          <div className="brand-mark">B</div>
+          <div><div className="brand-name">Blackcods</div><div className="brand-sub">CRM</div></div>
+        </div>
+        <div className="nav-group-label">Menu</div>
+        {visibleMenu.map(m=>(
+          <div key={m.id} className={"nav-item "+(page===m.id?"active":"")} onClick={()=>setPage(m.id)}>
+            <span className="nav-icon">{m.icon}</span>{m.label}
+          </div>
+        ))}
+        <div className="sidebar-foot">
+          <div className="role-pill">{ROLES[currentEmployee.role].label}</div>
+          <div className="user-chip">
+            <div className="user-avatar">{currentEmployee.name[0]}</div>
+            <div>
+              <div style={{fontWeight:600}}>{currentEmployee.name}</div>
+              <div style={{fontSize:10.5,color:"#8f8f79"}}>@{currentEmployee.username}</div>
+            </div>
+          </div>
+          <button className="logout-btn" onClick={logout}>Log out</button>
+        </div>
+      </div>
+      <div className="main">
+        <div className="topbar">
+          <div><h1>{title}</h1><div className="topbar-sub">{sub}</div></div>
+          <div className="search-box"><span>🔎</span><input placeholder="Quick search leads, customers, invoices..." /></div>
+        </div>
+        <div className="content-pad">{renderPage()}</div>
+      </div>
+      <Toast toasts={toasts}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
