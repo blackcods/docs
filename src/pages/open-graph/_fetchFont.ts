@@ -30,9 +30,11 @@ export async function fetchBrandFont() {
 		await writeFile(fontFile, Buffer.from(fontArrayBuffer));
 		return fontFile;
 	} catch (error) {
-		// In production builds, error if we failed to download fonts.
-		if (import.meta.env.NETLIFY && import.meta.env.CONTEXT === 'production') {
-			throw error;
-		}
+		// Fall back to the default font stack when the proprietary brand font
+		// isn't available (e.g. forks without access to FONT_CREDENTIALS).
+		console.warn(
+			'Skipping Astro brand font for OpenGraph images:',
+			error instanceof Error ? error.message : error
+		);
 	}
 }
