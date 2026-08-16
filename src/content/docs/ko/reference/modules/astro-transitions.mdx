@@ -113,19 +113,10 @@ import { slide } from 'astro:transitions';
 
 ```ts
 import {
-  getFallback,
   navigate,
   supportsViewTransitions,
   swapFunctions,
   transitionEnabledOnThisPage,
-  /* 다음은 v6에서 사용 중단되었습니다: */
-  isTransitionBeforePreparationEvent,
-  isTransitionBeforeSwapEvent,
-  TRANSITION_AFTER_PREPARATION,
-  TRANSITION_AFTER_SWAP,
-  TRANSITION_BEFORE_PREPARATION,
-  TRANSITION_BEFORE_SWAP,
-  TRANSITION_PAGE_LOAD,
 } from 'astro:transitions/client';
 ```
 
@@ -230,19 +221,6 @@ import {
 
 현재 페이지에 클라이언트 측 탐색을 위한 트랜지션이 활성화되어 있는지 여부입니다. 트랜지션이 있는 페이지에서 다르게 동작하는 컴포넌트를 만드는 데 사용할 수 있습니다.
 
-### `getFallback()`
-
-<p>
-
-**타입:** <code>() => <a href="#fallback">Fallback</a></code><br />
-**기본값:** `animate`<br />
-<Since v="3.6.0" />
-</p>
-
-트랜지션을 지원하지 않는 브라우저에서 사용할 대체 전략을 반환합니다. (기본값은 `animate`)
-
-<ReadMore>대체 동작을 선택하고 구성하는 방법은 [대체 제어](/ko/guides/view-transitions/#대체-옵션) 가이드를 참조하세요.</ReadMore>
-
 ### `swapFunctions`
 
 <p>
@@ -304,212 +282,7 @@ Astro의 기본 교체 함수를 빌드하는 데 사용되는 유틸리티 함�
 
 이전 body를 새 body로 교체합니다. 그런 다음 이전 body에서 유지되어야 하는 모든 요소를 검토하고 새 body에서 일치하는 요소를 찾아 이전 요소를 다시 제자리로 바꿉니다.
 
-### 더 이상 지원되지 않는 기능
-
-다음 가져오기 항목은 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다. [업그레이드 방법 확인하기](/ko/guides/upgrade-to/v6/#지원-중단됨-노출된-astrotransitions-내부-기능).
-
-<h4>`isTransitionBeforePreparationEvent()`</h4>
-
-<p>
-
-**타입:** `(value: any) => boolean`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-지정된 값이 [`TransitionBeforePreparationEvent`](#transitionbeforepreparationevent)와 일치하는지 여부를 결정합니다. 이는 이벤트 리스너에서 이벤트의 타입을 좁혀야 할 때 유용할 수 있습니다.
-
-```astro title="src/pages/index.astro" "isTransitionBeforePreparationEvent"
----
----
-
-<script>
-  import {
-    isTransitionBeforePreparationEvent,
-    TRANSITION_BEFORE_PREPARATION,
-  } from "astro:transitions/client";
-
-  function listener(event: Event) {
-    const setting = isTransitionBeforePreparationEvent(event) ? 1 : 2;
-    /* 설정을 사용한 작업 */
-  }
-
-  document.addEventListener(TRANSITION_BEFORE_PREPARATION, listener);
-</script>
-```
-
-<h4>`isTransitionBeforeSwapEvent()`</h4>
-
-<p>
-
-**타입:** `(value: any) => boolean`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-주어진 값이 [`TransitionBeforeSwapEvent`](#transitionbeforeswapevent)와 일치하는지 여부를 결정합니다. 이는 이벤트 리스너에서 이벤트의 타입을 좁혀야 할 때 유용할 수 있습니다.
-
-```astro title="src/pages/index.astro" "isTransitionBeforeSwapEvent"
----
----
-
-<script>
-  import {
-    isTransitionBeforeSwapEvent,
-    TRANSITION_BEFORE_SWAP,
-  } from "astro:transitions/client";
-
-  function listener(event: Event) {
-    const setting = isTransitionBeforeSwapEvent(event) ? 1 : 2;
-    /* 설정을 사용한 작업 */
-  }
-
-  document.addEventListener(TRANSITION_BEFORE_SWAP, listener);
-</script>
-```
-
-<h4>`TRANSITION_BEFORE_PREPARATION`</h4>
-
-<p>
-
-**타입:** `'astro:before-preparation'`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-이벤트를 정의할 때 `astro:before-preparation` 이벤트 이름을 일반 텍스트로 작성하는 것을 피하기 위한 상수입니다.
-
-```astro title="src/pages/index.astro" "TRANSITION_BEFORE_PREPARATION"
----
----
-
-<script>
-  import { TRANSITION_BEFORE_PREPARATION } from "astro:transitions/client";
-
-  document.addEventListener(TRANSITION_BEFORE_PREPARATION, () => {
-    /* 리스너 로직 */
-  });
-</script>
-```
-
-<h4>`TRANSITION_AFTER_PREPARATION`</h4>
-
-<p>
-
-**타입:** `'astro:after-preparation'`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-이벤트를 정의할 때 `astro:after-preparation` 이벤트 이름을 일반 텍스트로 작성하는 것을 피하기 위한 상수입니다.
-
-```astro title="src/pages/index.astro" "TRANSITION_AFTER_PREPARATION"
----
----
-
-<script>
-  import { TRANSITION_AFTER_PREPARATION } from "astro:transitions/client";
-
-  document.addEventListener(TRANSITION_AFTER_PREPARATION, () => {
-    /* 리스너 로직 */
-  });
-</script>
-```
-
-<h4>`TRANSITION_BEFORE_SWAP`</h4>
-
-<p>
-
-**타입:** `'astro:before-swap'`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-이벤트를 정의할 때 `astro:before-swap` 이벤트 이름을 일반 텍스트로 작성하는 것을 피하기 위한 상수입니다.
-
-```astro title="src/pages/index.astro" "TRANSITION_BEFORE_SWAP"
----
----
-
-<script>
-  import { TRANSITION_BEFORE_SWAP } from "astro:transitions/client";
-
-  document.addEventListener(TRANSITION_BEFORE_SWAP, () => {
-    /* 리스너 로직 */
-  });
-</script>
-```
-
-<h4>`TRANSITION_AFTER_SWAP`</h4>
-
-<p>
-
-**타입:** `'astro:after-swap'`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-이벤트를 정의할 때 `astro:after-swap` 이벤트 이름을 일반 텍스트로 작성하는 것을 피하기 위한 상수입니다.
-
-```astro title="src/pages/index.astro" "TRANSITION_AFTER_SWAP"
----
----
-
-<script>
-  import { TRANSITION_AFTER_SWAP } from "astro:transitions/client";
-
-  document.addEventListener(TRANSITION_AFTER_SWAP, () => {
-    /* 리스너 로직 */
-  });
-</script>
-```
-
-<h4>`TRANSITION_PAGE_LOAD`</h4>
-
-<p>
-
-**타입:** `'astro:page-load'`<br />
-<Since v="3.6.0" />
-</p>
-
-:::caution[사용 중단]
-이 함수는 v6에서 사용 중단되었으며 v7에서 제거될 예정입니다. 프로젝트에서 계속 사용할 수 있지만, 지금 코드를 업데이트하는 것이 좋습니다.
-:::
-
-이벤트를 정의할 때 `astro:page-load` 이벤트 이름을 일반 텍스트로 작성하는 것을 피하기 위한 상수입니다.
-
-```astro title="src/pages/index.astro" "TRANSITION_PAGE_LOAD"
----
----
-
-<script>
-  import { TRANSITION_PAGE_LOAD } from "astro:transitions/client";
-
-  document.addEventListener(TRANSITION_PAGE_LOAD, () => {
-    /* 리스너 로직 */
-  });
-</script>
-```
-
-## `astro:transitions/client` types
+## `astro:transitions/client` 타입
 
 ```ts
 import type {

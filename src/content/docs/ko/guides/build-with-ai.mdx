@@ -9,6 +9,8 @@ i18nReady: true
 description: AI의 도움을 받아 Astro 사이트를 구축하기 위한 리소스 및 팁
 ---
 
+import Since from '~/components/Since.astro';
+import ReadMore from '~/components/ReadMore.astro';
 import { Steps, LinkButton, Card, Tabs, TabItem } from '@astrojs/starlight/components';
 
 AI 기반 편집기 및 에이전트 코딩 도구는 일반적으로 Astro의 핵심 API와 개념에 대해 잘 알고 있습니다. 그러나 일부는 이전 API를 사용하며 최신 기능이나 프레임워크의 최근 변경 사항을 알지 못할 수 있습니다.
@@ -354,6 +356,29 @@ Astro Docs MCP 서버는 최신 문서에 대한 액세스를 제공하지만, �
 Astro의 MCP 서버를 구동하는 것과 동일한 기술이 셀프 서비스 지원을 위해 [Astro Discord](https://astro.build/chat)의 챗봇으로도 제공됩니다. `#support-ai` 채널을 방문하여 자연어로 Astro 또는 프로젝트 코드에 대해 질문하세요. 대화에 대한 스레드가 자동으로 생성되며, 후속 질문을 무제한으로 할 수 있습니다.
 
 **챗봇과의 대화는 공개되며 다른 채널과 동일한 언어 및 행동에 대한 서버 규칙을 따릅니다.** 하지만, 자원 봉사 회원들이 적극적으로 확인하지는 않습니다. 커뮤니티의 도움이 필요하면 일반 `#support` 채널에 스레드를 작성해 주세요.
+
+## 백그라운드 모드
+
+<p><Since v="7.0.0" /></p>
+
+AI 코딩 에이전트가 감지되면 `astro dev`가 서버를 분리된 백그라운드 프로세스로 자동 시작합니다. Astro v7.2.0부터는 `astro preview`도 동일하게 동작합니다. 이를 통해 서버가 에이전트의 터미널을 점유하지 않으며, 서버가 실행되는 동안에도 에이전트가 계속 작업할 수 있습니다.
+
+서버가 시작되면 서버의 URL, 포트, PID를 기록하는 잠금 파일(`.astro/dev.json` 또는 `.astro/preview.json`)이 생성됩니다. 이를 통해 동일한 프로젝트에서 중복된 서버가 시작되는 것을 방지합니다.
+
+AI 코딩 에이전트를 사용하지 않는 경우 서버는 포그라운드 프로세스로 시작되며 로그를 터미널에 출력합니다.
+
+자동 백그라운드 모드를 사용하지 않으려면 명령을 실행하기 전에 `ASTRO_DEV_BACKGROUND` 또는 `ASTRO_PREVIEW_BACKGROUND` 환경 변수를 다음과 같이 설정하세요.
+
+```shell
+ASTRO_DEV_BACKGROUND=0 astro dev
+ASTRO_PREVIEW_BACKGROUND=0 astro preview
+```
+
+<ReadMore>[CLI 참조](/ko/reference/cli-reference/)에서 [`astro dev`](/ko/reference/cli-reference/#astro-dev) 및 [`astro preview`](/ko/reference/cli-reference/#astro-preview)의 모든 플래그와 하위 명령어 목록을 확인하세요.</ReadMore>
+
+### 상태 확인 엔드포인트
+
+개발 서버는 `{"ok": true}`를 JSON으로 반환하는 `/_astro/status` 엔드포인트를 제공합니다. 이를 통해 에이전트와 기타 도구는 개발 서버가 요청을 처리할 준비가 되었는지 프로그래밍적으로 확인할 수 있습니다. 이 엔드포인트는 개발 서버에서만 사용할 수 있으며 프로덕션 빌드에는 포함되지 않습니다.
 
 ## AI 기반 Astro 개발을 위한 팁
 

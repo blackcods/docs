@@ -83,7 +83,7 @@ Pour vérifier que le module d'extension fonctionne, créez un fichier `.ts` et 
 
 ### Frameworks UI
 
-Si votre projet utilise un [framework UI](/fr/guides/framework-components/), des paramètres supplémentaires dépendant du framework peuvent être nécessaires. Veuillez consulter la documentation TypeScript de votre framework pour plus d'informations. ([Vue](https://vuejs.org/guide/typescript/overview.html#using-vue-with-typescript), [React](https://react-typescript-cheatsheet.netlify.app/docs/basic/setup), [Preact](https://preactjs.com/guide/v10/typescript), [Solid](https://www.solidjs.com/guides/typescript), [Svelte](https://svelte.dev/docs/svelte/typescript))
+Si votre projet utilise un [framework UI](/fr/guides/framework-components/), des paramètres supplémentaires dépendant du framework peuvent être nécessaires. Veuillez consulter la documentation TypeScript de votre framework pour plus d'informations. ([Vue](https://vuejs.org/guide/typescript/overview.html#using-vue-with-typescript), [React](https://react-typescript-cheatsheet.netlify.app/docs/basic/setup), [Preact](https://preactjs.com/guide/v10/typescript), [Solid](https://docs.solidjs.com/configuration/typescript), [Svelte](https://svelte.dev/docs/svelte/typescript))
 
 ## Importations de types
 
@@ -307,13 +307,14 @@ Astro inclut des aides pour travailler avec les types retournés par votre fonct
 
 Vous pouvez obtenir le type de [`Astro.params`](/fr/reference/api-reference/#params) avec `InferGetStaticParamsType` et le type de [`Astro.props`](/fr/reference/api-reference/#props) avec `InferGetStaticPropsType` ou vous pouvez utiliser `GetStaticPaths` pour déduire les deux à la fois :
 
-```astro title="src/pages/posts/[...id].astro" {2-6,18-19} "satisfies GetStaticPaths;"
+```astro title="src/pages/posts/[...id].astro" {2-6,19-20} "satisfies GetStaticPaths;"
 ---
 import type {
   InferGetStaticParamsType,
   InferGetStaticPropsType,
   GetStaticPaths,
 } from "astro";
+import { getCollection } from "astro:content";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("blog");
@@ -328,11 +329,11 @@ export const getStaticPaths = (async () => {
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-const { id } = Astro.params as Params;
+const { id } = Astro.params;
 //                   ^? { id: string; }
 
 const { title } = Astro.props;
-//                			^? { draft: boolean; title: string; }
+//                      ^? { draft: boolean; title: string; }
 ---
 ```
 
